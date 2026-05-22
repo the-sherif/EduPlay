@@ -40,6 +40,21 @@
       <input type="email"    id="regEmail"    class="input-field" placeholder="Email" />
       <input type="password" id="regPassword" class="input-field" placeholder="Пароль" />
       <input type="password" id="regConfirm"  class="input-field" placeholder="Повтори пароль" />
+
+      <span class="selector-label">Возраст</span>
+      <div class="selector-group" id="ageSelector">
+        <button class="sel-btn" data-age="child">7–10 лет 🎒</button>
+        <button class="sel-btn" data-age="teen">11–14 лет 📚</button>
+        <button class="sel-btn" data-age="older">15–17 лет 🎮</button>
+        <button class="sel-btn full" data-age="adult">Я много пожил и всё забыл 😂</button>
+      </div>
+
+      <span class="selector-label" id="genderLabel">Пол</span>
+      <div class="selector-group" id="genderSelector">
+        <button class="sel-btn" data-gender="boy">👦 Мальчик</button>
+        <button class="sel-btn" data-gender="girl">👧 Девочка</button>
+      </div>
+
       <button class="btn-primary" id="btnRegister">Создать аккаунт</button>
       <p class="auth-error" id="registerError"></p>
     </div>

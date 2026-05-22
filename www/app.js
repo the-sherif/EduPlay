@@ -1,5 +1,24 @@
 'use strict';
 
+// ══ Темы ══
+function getTheme(ageRange, gender) {
+  if (ageRange === 'adult')  return 'neutral';
+  if (ageRange === 'child')  return 'kids';
+  return gender === 'girl' ? 'girl' : 'boy';
+}
+
+function applyTheme(theme) {
+  document.body.classList.remove('theme-kids', 'theme-girl', 'theme-boy', 'theme-neutral');
+  if (theme) document.body.classList.add('theme-' + theme);
+}
+
+function loadTheme() {
+  const theme = localStorage.getItem('eduTheme');
+  if (theme) applyTheme(theme);
+}
+
+loadTheme();
+
 // ── Firebase конфиг (заменить на свой после создания проекта) ──
 const firebaseConfig = {
   apiKey:            "AIzaSyAtW1nL93lV_JjANK9KpIWfUYeKDoroarw",
@@ -66,6 +85,32 @@ document.getElementById('btnLogin').addEventListener('click', async () => {
   }
 });
 
+// ── Регистрация: выбор возраста и пола ──
+let selectedAge    = null;
+let selectedGender = null;
+
+document.getElementById('ageSelector').addEventListener('click', e => {
+  const btn = e.target.closest('.sel-btn');
+  if (!btn) return;
+  document.querySelectorAll('#ageSelector .sel-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedAge = btn.dataset.age;
+  const genderSection = document.getElementById('genderSelector');
+  const genderLabel   = document.getElementById('genderLabel');
+  const hide = selectedAge === 'adult';
+  genderSection.style.display = hide ? 'none' : 'flex';
+  genderLabel.style.display   = hide ? 'none' : 'block';
+  if (hide) selectedGender = null;
+});
+
+document.getElementById('genderSelector').addEventListener('click', e => {
+  const btn = e.target.closest('.sel-btn');
+  if (!btn) return;
+  document.querySelectorAll('#genderSelector .sel-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedGender = btn.dataset.gender;
+});
+
 // ── Регистрация ──
 document.getElementById('btnRegister').addEventListener('click', async () => {
   const name    = document.getElementById('regName').value.trim();
@@ -77,13 +122,17 @@ document.getElementById('btnRegister').addEventListener('click', async () => {
   if (!name || !email || !pass || !confirm) { setError('registerError', 'Заполни все поля'); return; }
   if (pass !== confirm) { setError('registerError', 'Пароли не совпадают'); return; }
   if (pass.length < 6)  { setError('registerError', 'Пароль минимум 6 символов'); return; }
+  if (!selectedAge)     { setError('registerError', 'Укажи свой возраст'); return; }
+  if (selectedAge !== 'adult' && !selectedGender) { setError('registerError', 'Укажи пол'); return; }
 
   const btn = document.getElementById('btnRegister');
   setLoading(btn, true);
   try {
     const cred = await auth.createUserWithEmailAndPassword(email, pass);
     await cred.user.updateProfile({ displayName: name });
-    // onAuthStateChanged сработал до updateProfile — обновляем вручную
+    const theme = getTheme(selectedAge, selectedGender);
+    localStorage.setItem('eduTheme', theme);
+    applyTheme(theme);
     updateUserUI(cred.user, name);
   } catch (e) {
     setError('registerError', friendlyError(e.code));

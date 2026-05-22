@@ -2,12 +2,104 @@
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
+/* ══ Тёмная тема (по умолчанию) ══ */
 :root {
-  --bg: #060918;
-  --accent: #6366f1;
-  --accent2: #8b5cf6;
-  --text: #fff;
-  --text-muted: #94a3b8;
+  --bg:           #060918;
+  --accent:       #6366f1;
+  --accent2:      #8b5cf6;
+  --text:         #fff;
+  --text-muted:   #94a3b8;
+  --surface:      rgba(255,255,255,0.04);
+  --surface-hover:rgba(99,102,241,0.15);
+  --border:       rgba(255,255,255,0.1);
+  --border-hover: rgba(99,102,241,0.4);
+  --input-bg:     rgba(255,255,255,0.06);
+  --input-focus:  rgba(99,102,241,0.08);
+  --sheet-bg:     #0d1027;
+  --shadow:       rgba(0,0,0,0.5);
+  --orb1:         #4f46e5;
+  --orb2:         #7c3aed;
+  --orb-opacity:  0.45;
+}
+
+/* ══ Тема: Дети (7–10 лет) ══ */
+body.theme-kids {
+  --bg:           #f0f7ff;
+  --accent:       #f97316;
+  --accent2:      #7c3aed;
+  --text:         #1e1b4b;
+  --text-muted:   #6b7280;
+  --surface:      rgba(255,255,255,0.8);
+  --surface-hover:rgba(249,115,22,0.12);
+  --border:       rgba(0,0,0,0.08);
+  --border-hover: rgba(249,115,22,0.45);
+  --input-bg:     rgba(255,255,255,0.9);
+  --input-focus:  rgba(249,115,22,0.06);
+  --sheet-bg:     #fff;
+  --shadow:       rgba(0,0,0,0.1);
+  --orb1:         #fb923c;
+  --orb2:         #a78bfa;
+  --orb-opacity:  0.3;
+}
+
+/* ══ Тема: Девочки ══ */
+body.theme-girl {
+  --bg:           #fdf4ff;
+  --accent:       #c026d3;
+  --accent2:      #7c3aed;
+  --text:         #2d1b4e;
+  --text-muted:   #9d4edd;
+  --surface:      rgba(255,255,255,0.8);
+  --surface-hover:rgba(192,38,211,0.1);
+  --border:       rgba(192,38,211,0.15);
+  --border-hover: rgba(192,38,211,0.4);
+  --input-bg:     rgba(255,255,255,0.85);
+  --input-focus:  rgba(192,38,211,0.06);
+  --sheet-bg:     #fff;
+  --shadow:       rgba(0,0,0,0.08);
+  --orb1:         #e879f9;
+  --orb2:         #a855f7;
+  --orb-opacity:  0.28;
+}
+
+/* ══ Тема: Мальчики ══ */
+body.theme-boy {
+  --bg:           #eff6ff;
+  --accent:       #2563eb;
+  --accent2:      #0891b2;
+  --text:         #1e3a5f;
+  --text-muted:   #4b7ab8;
+  --surface:      rgba(255,255,255,0.8);
+  --surface-hover:rgba(37,99,235,0.1);
+  --border:       rgba(37,99,235,0.14);
+  --border-hover: rgba(37,99,235,0.4);
+  --input-bg:     rgba(255,255,255,0.85);
+  --input-focus:  rgba(37,99,235,0.06);
+  --sheet-bg:     #fff;
+  --shadow:       rgba(0,0,0,0.08);
+  --orb1:         #60a5fa;
+  --orb2:         #22d3ee;
+  --orb-opacity:  0.28;
+}
+
+/* ══ Тема: Нейтральная (взрослые) ══ */
+body.theme-neutral {
+  --bg:           #f5f4f0;
+  --accent:       #5c6bc0;
+  --accent2:      #7986cb;
+  --text:         #2d3748;
+  --text-muted:   #718096;
+  --surface:      rgba(255,255,255,0.88);
+  --surface-hover:rgba(92,107,192,0.09);
+  --border:       rgba(0,0,0,0.08);
+  --border-hover: rgba(92,107,192,0.35);
+  --input-bg:     rgba(255,255,255,0.92);
+  --input-focus:  rgba(92,107,192,0.07);
+  --sheet-bg:     #fff;
+  --shadow:       rgba(0,0,0,0.07);
+  --orb1:         #9fa8da;
+  --orb2:         #b0bec5;
+  --orb-opacity:  0.22;
 }
 
 html, body {
@@ -16,9 +108,10 @@ html, body {
   background: var(--bg);
   font-family: "Inter", sans-serif;
   color: var(--text);
+  transition: background 0.4s ease, color 0.4s ease;
 }
 
-/* ── Экраны ── */
+/* ══ Экраны ══ */
 .screen {
   position: fixed; inset: 0;
   display: flex; align-items: center; justify-content: center;
@@ -29,35 +122,35 @@ html, body {
 }
 .screen.active { opacity: 1; pointer-events: all; }
 
-/* ── Шары ── */
-.orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.45; pointer-events: none; z-index: 0; }
-.orb-1 { width: 400px; height: 400px; background: radial-gradient(circle, #4f46e5, transparent 70%); top: -120px; left: -100px; animation: d1 8s ease-in-out infinite alternate; }
-.orb-2 { width: 350px; height: 350px; background: radial-gradient(circle, #7c3aed, transparent 70%); bottom: -80px; right: -80px; animation: d2 10s ease-in-out infinite alternate; }
+/* ══ Шары ══ */
+.orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: var(--orb-opacity); pointer-events: none; z-index: 0; transition: opacity 0.4s; }
+.orb-1 { width: 400px; height: 400px; background: radial-gradient(circle, var(--orb1), transparent 70%); top: -120px; left: -100px; animation: d1 8s ease-in-out infinite alternate; }
+.orb-2 { width: 350px; height: 350px; background: radial-gradient(circle, var(--orb2), transparent 70%); bottom: -80px; right: -80px; animation: d2 10s ease-in-out infinite alternate; }
 @keyframes d1 { to { transform: translate(60px, 80px); } }
 @keyframes d2 { to { transform: translate(-50px, -70px); } }
 
-/* ── Карточка авторизации ── */
+/* ══ Карточка авторизации ══ */
 .auth-card {
   position: relative; z-index: 1;
   width: min(400px, 100%);
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 1.75rem;
   backdrop-filter: blur(24px);
   padding: 2.25rem 1.75rem;
   display: flex; flex-direction: column; align-items: center; gap: 0.9rem;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  box-shadow: 0 8px 40px var(--shadow);
 }
 
 .btn-back {
   position: absolute; top: 1.25rem; left: 1.25rem;
   width: 36px; height: 36px; border-radius: 50%;
-  background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
+  background: var(--surface); border: 1px solid var(--border);
   color: var(--text-muted); font-size: 1rem; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   transition: background 0.2s;
 }
-.btn-back:active { background: rgba(255,255,255,0.14); }
+.btn-back:active { background: var(--surface-hover); }
 
 .auth-logo { font-size: 3rem; line-height: 1; }
 .auth-title { font-size: 1.8rem; font-weight: 900; letter-spacing: -0.03em; }
@@ -65,15 +158,15 @@ html, body {
 
 .input-field {
   width: 100%; padding: 0.85rem 1.1rem;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: var(--input-bg);
+  border: 1px solid var(--border);
   border-radius: 0.875rem;
-  color: #fff; font-size: 0.95rem; font-family: inherit;
+  color: var(--text); font-size: 0.95rem; font-family: inherit;
   outline: none;
   transition: border-color 0.2s, background 0.2s;
 }
 .input-field::placeholder { color: var(--text-muted); }
-.input-field:focus { border-color: var(--accent); background: rgba(99,102,241,0.08); }
+.input-field:focus { border-color: var(--accent); background: var(--input-focus); }
 
 .btn-primary {
   width: 100%; padding: 0.9rem;
@@ -81,7 +174,7 @@ html, body {
   border: none; border-radius: 0.875rem;
   color: #fff; font-size: 1rem; font-weight: 700; font-family: inherit;
   cursor: pointer; margin-top: 0.25rem;
-  box-shadow: 0 4px 20px rgba(99,102,241,0.4);
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--accent) 40%, transparent);
   transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
 }
 .btn-primary:active { transform: scale(0.97); }
@@ -90,18 +183,44 @@ html, body {
 .auth-error   { font-size: 0.78rem; color: #f87171; min-height: 1em; text-align: center; }
 .auth-success { font-size: 0.78rem; color: #4ade80; min-height: 1em; text-align: center; }
 
-.auth-links {
-  display: flex; gap: 1.5rem; margin-top: 0.25rem;
-}
+.auth-links { display: flex; gap: 1.5rem; margin-top: 0.25rem; }
 .link-btn {
   background: none; border: none;
   color: var(--text-muted); font-size: 0.8rem; font-family: inherit;
   cursor: pointer; padding: 0.25rem 0;
   transition: color 0.2s;
 }
-.link-btn:hover { color: #c7d2fe; }
+.link-btn:hover { color: var(--accent); }
 
-/* ── Главная ── */
+/* ══ Селекторы возраста / пола ══ */
+.selector-label {
+  font-size: 0.75rem; font-weight: 700; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.07em;
+  align-self: flex-start; margin-top: 0.25rem;
+}
+.selector-group {
+  display: flex; flex-wrap: wrap; gap: 0.5rem;
+  width: 100%;
+}
+.sel-btn {
+  flex: 1; min-width: calc(50% - 0.25rem);
+  padding: 0.6rem 0.5rem;
+  background: var(--input-bg);
+  border: 1.5px solid var(--border);
+  border-radius: 0.75rem;
+  color: var(--text); font-size: 0.82rem; font-weight: 600; font-family: inherit;
+  cursor: pointer; text-align: center;
+  transition: all 0.15s;
+}
+.sel-btn:active { transform: scale(0.97); }
+.sel-btn.selected {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-color: var(--accent);
+  color: #fff;
+}
+.sel-btn.full { flex: 100%; min-width: 100%; font-size: 0.78rem; }
+
+/* ══ Главная ══ */
 .home-content {
   position: relative; z-index: 1;
   width: 100%; max-width: 420px;
@@ -109,28 +228,26 @@ html, body {
 }
 .home-title { font-size: 1.6rem; font-weight: 900; letter-spacing: -0.02em; }
 
-.home-header {
-  display: flex; align-items: center; gap: 0.75rem;
-}
+.home-header { display: flex; align-items: center; gap: 0.75rem; }
 .home-user-info { display: flex; flex-direction: column; gap: 0.1rem; flex: 1; }
 .home-username  { font-size: 1rem; font-weight: 700; }
 .home-useremail { font-size: 0.72rem; color: var(--text-muted); }
 
 .btn-icon {
   width: 40px; height: 40px; border-radius: 50%;
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: var(--surface);
+  border: 1px solid var(--border);
   color: var(--text-muted); font-size: 1.1rem;
   cursor: pointer; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
   transition: background 0.2s;
 }
-.btn-icon:active { background: rgba(255,255,255,0.14); }
+.btn-icon:active { background: var(--surface-hover); }
 
-/* ── Модалки ── */
+/* ══ Модалки ══ */
 .modal-overlay {
   position: fixed; inset: 0; z-index: 100;
-  background: rgba(0,0,0,0.55);
+  background: rgba(0,0,0,0.45);
   backdrop-filter: blur(6px);
   display: flex; align-items: flex-end; justify-content: center;
   opacity: 0; pointer-events: none;
@@ -140,8 +257,8 @@ html, body {
 
 .modal-sheet {
   width: 100%; max-width: 480px;
-  background: #0d1027;
-  border: 1px solid rgba(255,255,255,0.1);
+  background: var(--sheet-bg);
+  border: 1px solid var(--border);
   border-radius: 1.75rem 1.75rem 0 0;
   padding: 1rem 1.75rem 2.5rem;
   display: flex; flex-direction: column; align-items: center; gap: 1rem;
@@ -152,12 +269,12 @@ html, body {
 
 .modal-handle {
   width: 40px; height: 4px; border-radius: 2px;
-  background: rgba(255,255,255,0.15);
+  background: var(--border);
   margin-bottom: 0.5rem;
 }
 .modal-title {
   font-size: 1.15rem; font-weight: 700; align-self: flex-start;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.25rem; color: var(--text);
 }
 
 /* ── Профиль ── */
@@ -168,62 +285,52 @@ html, body {
   font-size: 2rem; font-weight: 700; color: #fff;
   margin-top: 0.5rem;
 }
-.profile-name  { font-size: 1.3rem; font-weight: 700; }
+.profile-name  { font-size: 1.3rem; font-weight: 700; color: var(--text); }
 .profile-email { font-size: 0.82rem; color: var(--text-muted); margin-top: -0.5rem; }
-.profile-divider {
-  width: 100%; height: 1px;
-  background: rgba(255,255,255,0.07);
-  margin: 0.25rem 0;
-}
+.profile-divider { width: 100%; height: 1px; background: var(--border); margin: 0.25rem 0; }
 
 /* ── Настройки ── */
 .settings-item {
   width: 100%; display: flex; align-items: center; gap: 0.9rem;
   padding: 0.85rem 1rem;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.07);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 0.875rem;
 }
 .settings-icon  { font-size: 1.2rem; }
-.settings-label { flex: 1; font-size: 0.95rem; font-weight: 500; }
+.settings-label { flex: 1; font-size: 0.95rem; font-weight: 500; color: var(--text); }
 .settings-badge {
   font-size: 0.62rem; font-weight: 700; letter-spacing: 0.05em;
-  background: rgba(99,102,241,0.2); color: #a5b4fc;
+  background: var(--surface-hover); color: var(--accent);
   padding: 0.15rem 0.5rem; border-radius: 1rem;
 }
-.settings-version {
-  font-size: 0.72rem; color: var(--text-muted);
-  margin-top: 0.5rem;
-}
+.settings-version { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.5rem; }
 
-.subjects-grid {
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-}
+/* ══ Предметы ══ */
+.subjects-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
 .subject-card {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.09);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 1.25rem;
   padding: 1.5rem 1rem;
   display: flex; flex-direction: column; align-items: center; gap: 0.6rem;
   cursor: pointer; position: relative; overflow: hidden;
   transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  box-shadow: 0 2px 12px var(--shadow);
 }
 .subject-card:active { transform: scale(0.97); }
-.subject-card:not(.soon):hover { background: rgba(99,102,241,0.15); border-color: rgba(99,102,241,0.4); }
-.subject-card.soon { opacity: 0.45; cursor: default; }
+.subject-card:not(.soon):hover { background: var(--surface-hover); border-color: var(--border-hover); }
+.subject-card.soon { opacity: 0.5; cursor: default; }
 .subject-icon { font-size: 2.2rem; }
 .subject-name { font-size: 0.82rem; font-weight: 600; color: var(--text-muted); text-align: center; }
 .subject-soon {
   position: absolute; top: 0.5rem; right: 0.6rem;
   font-size: 0.55rem; font-weight: 700; letter-spacing: 0.05em;
-  background: rgba(99,102,241,0.25); color: #a5b4fc;
+  background: var(--surface-hover); color: var(--accent);
   padding: 0.15rem 0.45rem; border-radius: 1rem;
 }
 
-/* ══════════════════════════════
-   НАВИГАЦИОННЫЕ ЭКРАНЫ (Классы / Темы)
-══════════════════════════════ */
+/* ══ Навигационные экраны (Классы / Темы) ══ */
 #screenGradeGroup, #screenTopics {
   flex-direction: column;
   align-items: stretch;
@@ -248,23 +355,21 @@ html, body {
 .nav-sub   { font-size: 0.82rem; color: var(--text-muted); margin-top: 0.1rem; }
 
 /* ── Сетка классов ── */
-.grade-grid {
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-}
+.grade-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
 .grade-card {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.09);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 1.25rem;
   padding: 1.5rem 1rem;
   display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
   cursor: pointer; text-align: center;
   transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  box-shadow: 0 2px 8px var(--shadow);
 }
 .grade-card:active { transform: scale(0.97); }
-.grade-card:hover  { background: rgba(99,102,241,0.15); border-color: rgba(99,102,241,0.4); }
+.grade-card:hover  { background: var(--surface-hover); border-color: var(--border-hover); }
 .grade-icon  { font-size: 2.2rem; line-height: 1; }
-.grade-label { font-size: 0.95rem; font-weight: 700; }
+.grade-label { font-size: 0.95rem; font-weight: 700; color: var(--text); }
 .grade-desc  { font-size: 0.7rem; color: var(--text-muted); }
 
 /* ── Список тем ── */
@@ -275,28 +380,27 @@ html, body {
 }
 .topic-item {
   display: flex; align-items: center; gap: 1rem;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.09);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 1rem;
   padding: 1rem 1.1rem;
   cursor: pointer; flex-shrink: 0;
   transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  box-shadow: 0 1px 6px var(--shadow);
 }
 .topic-item:active { transform: scale(0.98); }
-.topic-item:hover  { background: rgba(99,102,241,0.12); border-color: rgba(99,102,241,0.3); }
+.topic-item:hover  { background: var(--surface-hover); border-color: var(--border-hover); }
 .topic-icon-wrap {
   width: 42px; height: 42px; border-radius: 0.75rem;
-  background: rgba(99,102,241,0.15);
+  background: var(--surface-hover);
   display: flex; align-items: center; justify-content: center;
-  font-size: 1.05rem; font-weight: 700; color: #a5b4fc;
+  font-size: 1.05rem; font-weight: 700; color: var(--accent);
   flex-shrink: 0;
 }
-.topic-name  { flex: 1; font-size: 0.92rem; font-weight: 600; }
+.topic-name  { flex: 1; font-size: 0.92rem; font-weight: 600; color: var(--text); }
 .topic-count { font-size: 0.72rem; color: var(--text-muted); white-space: nowrap; }
 
-/* ══════════════════════════════
-   ТРЕНАЖЁР
-══════════════════════════════ */
+/* ══ Тренажёр ══ */
 #screenExercise {
   flex-direction: column;
   align-items: stretch;
@@ -319,7 +423,7 @@ html, body {
 }
 .exercise-progress-bar {
   flex: 1; height: 6px;
-  background: rgba(255,255,255,0.1);
+  background: var(--border);
   border-radius: 3px; overflow: hidden;
 }
 .exercise-progress-fill {
@@ -329,16 +433,12 @@ html, body {
   transition: width 0.4s ease;
 }
 .exercise-score-chip {
-  font-size: 0.88rem; font-weight: 700; color: #fbbf24;
+  font-size: 0.88rem; font-weight: 700; color: #f59e0b;
   white-space: nowrap; min-width: 42px; text-align: right;
 }
 
-.exercise-question-mode {
-  display: flex; flex-direction: column; flex: 1; gap: 1rem;
-}
-.exercise-meta {
-  display: flex; justify-content: space-between; align-items: center;
-}
+.exercise-question-mode { display: flex; flex-direction: column; flex: 1; gap: 1rem; }
+.exercise-meta { display: flex; justify-content: space-between; align-items: center; }
 .exercise-topic-label {
   font-size: 0.75rem; font-weight: 700; color: var(--accent);
   text-transform: uppercase; letter-spacing: 0.07em;
@@ -348,53 +448,48 @@ html, body {
 .exercise-question {
   font-size: 1.35rem; font-weight: 700; line-height: 1.55;
   white-space: pre-line;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 1.25rem;
   padding: 1.5rem;
+  color: var(--text);
+  box-shadow: 0 2px 12px var(--shadow);
 }
 
-.exercise-options {
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 0.6rem;
-}
+.exercise-options { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
 .option-btn {
   width: 100%; padding: 0.9rem 0.5rem;
-  background: rgba(255,255,255,0.06);
-  border: 1.5px solid rgba(255,255,255,0.1);
+  background: var(--input-bg);
+  border: 1.5px solid var(--border);
   border-radius: 1rem;
-  color: #fff; font-size: 1rem; font-weight: 600;
+  color: var(--text); font-size: 1rem; font-weight: 600;
   font-family: inherit; cursor: pointer;
   transition: background 0.15s, border-color 0.15s, transform 0.1s;
   min-height: 58px;
 }
-.option-btn:active:not(:disabled)  { transform: scale(0.97); }
-.option-btn:hover:not(:disabled)   { background: rgba(99,102,241,0.2); border-color: rgba(99,102,241,0.5); }
+.option-btn:active:not(:disabled) { transform: scale(0.97); }
+.option-btn:hover:not(:disabled)  { background: var(--surface-hover); border-color: var(--border-hover); }
 .option-btn:disabled               { cursor: default; }
-.option-btn.correct { background: rgba(34,197,94,0.18); border-color: #22c55e; color: #4ade80; }
-.option-btn.wrong   { background: rgba(239,68,68,0.15); border-color: #ef4444; color: #f87171; }
+.option-btn.correct { background: rgba(34,197,94,0.18); border-color: #22c55e; color: #16a34a; }
+.option-btn.wrong   { background: rgba(239,68,68,0.15); border-color: #ef4444; color: #dc2626; }
 
-.exercise-hint {
-  font-size: 0.88rem; font-weight: 600;
-  text-align: center; min-height: 1.4em;
-}
+.exercise-hint { font-size: 0.88rem; font-weight: 600; text-align: center; min-height: 1.4em; }
 .exercise-next-btn { display: none; margin-top: auto; }
 
 /* ── Результат ── */
 .exercise-result-mode {
   display: none; flex-direction: column;
   align-items: center; justify-content: center;
-  flex: 1; gap: 0.75rem; text-align: center;
-  padding: 1rem 0;
+  flex: 1; gap: 0.75rem; text-align: center; padding: 1rem 0;
 }
 .result-emoji-big    { font-size: 5rem; line-height: 1; }
-.result-title        { font-size: 1.4rem; font-weight: 900; }
-.result-score-display { font-size: 3rem; font-weight: 900; letter-spacing: -0.02em; }
+.result-title        { font-size: 1.4rem; font-weight: 900; color: var(--text); }
+.result-score-display { font-size: 3rem; font-weight: 900; letter-spacing: -0.02em; color: var(--text); }
 .result-pct          { font-size: 1rem; color: var(--text-muted); margin-top: -0.25rem; }
 .exercise-result-mode .btn-primary { width: 100%; margin-top: 0.25rem; }
 .btn-ghost {
-  background: rgba(255,255,255,0.07) !important;
+  background: var(--surface) !important;
   box-shadow: none !important;
-  border: 1px solid rgba(255,255,255,0.12);
+  border: 1px solid var(--border) !important;
+  color: var(--text) !important;
 }
-
