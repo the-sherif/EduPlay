@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>EduPlay</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ── Логин ── -->
+  <div id="screenLogin" class="screen active">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="auth-card">
+      <div class="auth-logo">🎮</div>
+      <h1 class="auth-title">EduPlay</h1>
+      <p class="auth-sub">Учёба в формате игры</p>
+      <input type="email"    id="loginEmail"    class="input-field" placeholder="Email" />
+      <input type="password" id="loginPassword" class="input-field" placeholder="Пароль" />
+      <button class="btn-primary" id="btnLogin">Войти</button>
+      <p class="auth-error" id="loginError"></p>
+      <div class="auth-links">
+        <button class="link-btn" id="toForgot">Забыл пароль</button>
+        <button class="link-btn" id="toRegister">Регистрация</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Регистрация ── -->
+  <div id="screenRegister" class="screen">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="auth-card">
+      <button class="btn-back" id="backFromRegister">←</button>
+      <div class="auth-logo">✨</div>
+      <h1 class="auth-title">Регистрация</h1>
+      <p class="auth-sub">Создай аккаунт</p>
+      <input type="text"     id="regName"     class="input-field" placeholder="Имя" />
+      <input type="email"    id="regEmail"    class="input-field" placeholder="Email" />
+      <input type="password" id="regPassword" class="input-field" placeholder="Пароль" />
+      <input type="password" id="regConfirm"  class="input-field" placeholder="Повтори пароль" />
+      <button class="btn-primary" id="btnRegister">Создать аккаунт</button>
+      <p class="auth-error" id="registerError"></p>
+    </div>
+  </div>
+
+  <!-- ── Восстановление пароля ── -->
+  <div id="screenForgot" class="screen">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="auth-card">
+      <button class="btn-back" id="backFromForgot">←</button>
+      <div class="auth-logo">🔑</div>
+      <h1 class="auth-title">Восстановление</h1>
+      <p class="auth-sub">Введи email — пришлём ссылку для сброса пароля</p>
+      <input type="email" id="forgotEmail" class="input-field" placeholder="Email" />
+      <button class="btn-primary" id="btnForgot">Отправить ссылку</button>
+      <p class="auth-error"   id="forgotError"></p>
+      <p class="auth-success" id="forgotSuccess"></p>
+    </div>
+  </div>
+
+  <!-- ── Главная (после входа) ── -->
+  <div id="screenHome" class="screen">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="home-content">
+      <div class="home-header">
+        <button class="btn-icon" id="btnProfile" title="Профиль">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </button>
+        <div class="home-user-info">
+          <div class="home-username" id="userName">Игрок</div>
+          <div class="home-useremail" id="userEmailLabel"></div>
+        </div>
+        <button class="btn-icon" id="btnSettings" title="Настройки">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
+      </div>
+      <div class="home-title">Что учим сегодня?</div>
+      <div class="subjects-grid">
+        <div class="subject-card" data-subject="math">
+          <span class="subject-icon">📐</span>
+          <span class="subject-name">Математика</span>
+        </div>
+        <div class="subject-card" data-subject="physics">
+          <span class="subject-icon">⚡</span>
+          <span class="subject-name">Физика</span>
+        </div>
+        <div class="subject-card soon">
+          <span class="subject-icon">🧪</span>
+          <span class="subject-name">Химия</span>
+          <span class="subject-soon">Скоро</span>
+        </div>
+        <div class="subject-card soon">
+          <span class="subject-icon">📜</span>
+          <span class="subject-name">История</span>
+          <span class="subject-soon">Скоро</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Выбор группы классов ── -->
+  <div id="screenGradeGroup" class="screen">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="nav-screen-wrap">
+      <div class="nav-top-bar">
+        <button class="btn-icon" id="btnBackGrade">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div>
+          <div class="nav-title" id="gradeScreenSubject">Математика</div>
+          <div class="nav-sub">Выбери класс</div>
+        </div>
+      </div>
+      <div class="grade-grid" id="gradeGroupGrid"></div>
+    </div>
+  </div>
+
+  <!-- ── Выбор темы ── -->
+  <div id="screenTopics" class="screen">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="nav-screen-wrap">
+      <div class="nav-top-bar">
+        <button class="btn-icon" id="btnBackTopics">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div>
+          <div class="nav-title" id="topicsTitle">1–4 класс</div>
+          <div class="nav-sub">Выбери тему</div>
+        </div>
+      </div>
+      <div class="topics-list" id="topicsList"></div>
+    </div>
+  </div>
+
+  <!-- ── Тренажёр ── -->
+  <div id="screenExercise" class="screen">
+    <div class="exercise-container">
+      <div class="exercise-header">
+        <button class="btn-icon" id="btnBackExercise">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="exercise-progress-bar">
+          <div class="exercise-progress-fill" id="exerciseProgressFill"></div>
+        </div>
+        <div class="exercise-score-chip" id="exerciseScore">★ 0</div>
+      </div>
+
+      <div class="exercise-question-mode" id="exerciseQuestionMode">
+        <div class="exercise-meta">
+          <span class="exercise-topic-label" id="exerciseTopicLabel"></span>
+          <span class="exercise-count" id="exerciseCount">1 / 10</span>
+        </div>
+        <div class="exercise-question" id="exerciseQuestion"></div>
+        <div class="exercise-options" id="exerciseOptions"></div>
+        <div class="exercise-hint" id="exerciseHint"></div>
+        <button class="btn-primary exercise-next-btn" id="btnNextQuestion">Далее →</button>
+      </div>
+
+      <div class="exercise-result-mode" id="exerciseResultMode">
+        <div class="result-emoji-big" id="resultEmoji"></div>
+        <div class="result-title" id="resultTitle"></div>
+        <div class="result-score-display" id="resultScoreBig"></div>
+        <div class="result-pct" id="resultPct"></div>
+        <button class="btn-primary" id="btnRetry">Ещё раз</button>
+        <button class="btn-primary btn-ghost" id="btnOtherTopic">Другая тема</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Профиль (модалка) ── -->
+  <div id="profileModal" class="modal-overlay">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="profile-avatar-big" id="profileAvatarBig">И</div>
+      <div class="profile-name" id="profileName">Игрок</div>
+      <div class="profile-email" id="profileEmail"></div>
+      <div class="profile-divider"></div>
+      <button class="btn-primary" id="btnLogout" style="background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 4px 20px rgba(239,68,68,0.35)">Выйти из аккаунта</button>
+    </div>
+  </div>
+
+  <!-- ── Настройки (модалка) ── -->
+  <div id="settingsModal" class="modal-overlay">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-title">Настройки</div>
+      <div class="settings-item">
+        <span class="settings-icon">🔔</span>
+        <span class="settings-label">Уведомления</span>
+        <span class="settings-badge">Скоро</span>
+      </div>
+      <div class="settings-item">
+        <span class="settings-icon">🌙</span>
+        <span class="settings-label">Тёмная тема</span>
+        <span class="settings-badge">Скоро</span>
+      </div>
+      <div class="settings-item">
+        <span class="settings-icon">🌐</span>
+        <span class="settings-label">Язык</span>
+        <span class="settings-badge">Скоро</span>
+      </div>
+      <div class="settings-version">EduPlay v0.1</div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="app.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

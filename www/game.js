@@ -1,0 +1,397 @@
+'use strict';
+
+const QUESTIONS_PER_SESSION = 10;
+
+// ══ Группы классов ══
+const gradeGroups = [
+  { id: 'g1', label: '1–4 класс',   icon: '🌱', desc: 'Основы счёта' },
+  { id: 'g2', label: '5–7 класс',   icon: '📐', desc: 'Дроби и уравнения' },
+  { id: 'g3', label: '8–9 класс',   icon: '📊', desc: 'Алгебра и геометрия' },
+  { id: 'g4', label: '10–11 класс', icon: '🎓', desc: 'Высшая математика' },
+];
+
+// ══ Темы по математике ══
+const mathTopics = {
+  g1: [
+    { id: 'add10',       name: 'Счёт до 10',              icon: '🔢', info: '1 класс' },
+    { id: 'add100',      name: 'Сложение до 100',          icon: '➕', info: '1–2 класс' },
+    { id: 'sub100',      name: 'Вычитание до 100',         icon: '➖', info: '1–2 класс' },
+    { id: 'add1000',     name: 'Сложение до 1000',         icon: '➕', info: '3 класс' },
+    { id: 'sub1000',     name: 'Вычитание до 1000',        icon: '➖', info: '3 класс' },
+    { id: 'multiply2_5', name: 'Таблица × 2, 3, 4, 5',    icon: '✖️', info: '2 класс' },
+    { id: 'multiply6_9', name: 'Таблица × 6, 7, 8, 9',    icon: '✖️', info: '2–3 класс' },
+    { id: 'divide_easy', name: 'Деление (на 2–5)',         icon: '➗', info: '2 класс' },
+    { id: 'divide_hard', name: 'Деление (на 6–9)',         icon: '➗', info: '3 класс' },
+    { id: 'compare',     name: 'Сравнение чисел',          icon: '⚖️', info: '1 класс' },
+    { id: 'ordinal',     name: 'Порядок чисел',            icon: '📏', info: '1 класс' },
+    { id: 'even_odd',    name: 'Чётные и нечётные',        icon: '🔁', info: '2 класс' },
+    { id: 'round',       name: 'Округление',               icon: '⭕', info: '3 класс' },
+    { id: 'perimeter',   name: 'Периметр',                 icon: '📐', info: '2–3 класс' },
+    { id: 'area',        name: 'Площадь',                  icon: '▭',  info: '3 класс' },
+    { id: 'fraction_half', name: 'Доли (½, ¼, ⅓)',        icon: '½',  info: '3 класс' },
+    { id: 'time',        name: 'Время (часы и минуты)',    icon: '🕐', info: '2–3 класс' },
+    { id: 'money',       name: 'Деньги и цены',            icon: '💰', info: '2 класс' },
+    { id: 'word_add',    name: 'Задачи на сложение',       icon: '📝', info: '1–2 класс' },
+    { id: 'word_mul',    name: 'Задачи на умножение',      icon: '📝', info: '2–3 класс' },
+  ],
+  g2: [
+    { id: 'fractions',  name: 'Обыкновенные дроби',   icon: '½',   info: '5 класс' },
+    { id: 'decimals',   name: 'Десятичные дроби',     icon: '0,5', info: '5 класс' },
+    { id: 'percent',    name: 'Проценты',              icon: '%',   info: '5–6 класс' },
+    { id: 'ratio',      name: 'Пропорции',             icon: '∷',   info: '6 класс' },
+    { id: 'negative',   name: 'Отрицательные числа',  icon: '−',   info: '6 класс' },
+    { id: 'linear_eq',  name: 'Линейные уравнения',   icon: '=',   info: '6–7 класс' },
+    { id: 'powers',     name: 'Степени',               icon: 'xⁿ',  info: '7 класс' },
+  ],
+  g3: [
+    { id: 'quadratic',   name: 'Квадратные уравнения', icon: 'x²',  info: '8 класс' },
+    { id: 'sqrt',        name: 'Квадратные корни',     icon: '√',   info: '8 класс' },
+    { id: 'systems_eq',  name: 'Системы уравнений',    icon: '{}',  info: '9 класс' },
+    { id: 'functions',   name: 'Функции',               icon: 'f(x)', info: '8–9 класс' },
+    { id: 'pythagorean', name: 'Теорема Пифагора',     icon: '△',   info: '8 класс' },
+    { id: 'progression', name: 'Прогрессии',            icon: '…',   info: '9 класс' },
+    { id: 'probability', name: 'Вероятность',           icon: 'P',   info: '9 класс' },
+  ],
+  g4: [
+    { id: 'trig',          name: 'Тригонометрия',  icon: 'sin',    info: '10 класс' },
+    { id: 'logarithm',     name: 'Логарифмы',      icon: 'log',    info: '11 класс' },
+    { id: 'derivative',    name: 'Производная',    icon: "f'",     info: '11 класс' },
+    { id: 'integral',      name: 'Интеграл',       icon: '∫',      info: '11 класс' },
+    { id: 'combinatorics', name: 'Комбинаторика',  icon: 'C(n,k)', info: '11 класс' },
+  ],
+};
+
+// ══ Статические вопросы (для сложных тем) ══
+const staticQ = {
+  trig: [
+    { text: 'sin(0°) = ?',       answers: ['0', '1', '−1', '½'],    correct: '0' },
+    { text: 'cos(0°) = ?',       answers: ['0', '1', '−1', '½'],    correct: '1' },
+    { text: 'sin(90°) = ?',      answers: ['0', '½', '−1', '1'],    correct: '1' },
+    { text: 'cos(180°) = ?',     answers: ['0', '1', '−1', '½'],    correct: '−1' },
+    { text: 'sin(30°) = ?',      answers: ['½', '√3/2', '1', '0'],  correct: '½' },
+    { text: 'cos(60°) = ?',      answers: ['½', '√3/2', '1', '0'],  correct: '½' },
+    { text: 'tg(45°) = ?',       answers: ['0', '½', '1', '√3'],    correct: '1' },
+    { text: 'sin²x + cos²x = ?', answers: ['0', '1', '2', 'sin2x'], correct: '1' },
+    { text: 'cos(90°) = ?',      answers: ['0', '1', '−1', '½'],    correct: '0' },
+    { text: 'sin(60°) = ?',      answers: ['½', '√3/2', '1', '0'],  correct: '√3/2' },
+  ],
+  logarithm: [
+    { text: 'log₂(8) = ?',     answers: ['2', '3', '4', '8'],    correct: '3' },
+    { text: 'log₁₀(100) = ?',  answers: ['1', '2', '10', '20'],  correct: '2' },
+    { text: 'log₂(1) = ?',     answers: ['0', '1', '2', '−1'],   correct: '0' },
+    { text: 'ln(e) = ?',       answers: ['0', '1', 'e', '2'],    correct: '1' },
+    { text: 'log₃(9) = ?',     answers: ['1', '2', '3', '9'],    correct: '2' },
+    { text: 'log₂(32) = ?',    answers: ['4', '5', '6', '16'],   correct: '5' },
+    { text: 'log₁₀(1000) = ?', answers: ['2', '3', '4', '100'],  correct: '3' },
+    { text: 'log_a(a) = ?',    answers: ['0', '1', 'a', '2'],    correct: '1' },
+    { text: 'log_a(1) = ?',    answers: ['0', '1', 'a', '−1'],   correct: '0' },
+    { text: 'log₄(64) = ?',    answers: ['2', '3', '4', '16'],   correct: '3' },
+  ],
+  derivative: [
+    { text: "(x²)' = ?",          answers: ['x', '2x', '2', 'x²'],               correct: '2x' },
+    { text: "(x³)' = ?",          answers: ['3x', '3x²', 'x²', '2x²'],           correct: '3x²' },
+    { text: "(sin x)' = ?",       answers: ['cos x', '−cos x', '−sin x', 'tg x'], correct: 'cos x' },
+    { text: "(cos x)' = ?",       answers: ['sin x', '−sin x', '−cos x', 'tg x'], correct: '−sin x' },
+    { text: "(eˣ)' = ?",          answers: ['eˣ', 'xeˣ', 'e^(x−1)', '1/eˣ'],    correct: 'eˣ' },
+    { text: "(ln x)' = ?",        answers: ['ln x', '1/x', 'x', 'eˣ'],           correct: '1/x' },
+    { text: "(C)' = ? (C=const)", answers: ['C', '1', '0', 'C²'],                correct: '0' },
+    { text: "(x)' = ?",           answers: ['x', '1', '0', '2x'],                correct: '1' },
+    { text: "(x⁴)' = ?",         answers: ['4x', '4x³', 'x³', '3x⁴'],          correct: '4x³' },
+    { text: "(tg x)' = ?",        answers: ['1/cos x', '1/cos²x', 'cos²x', '−1/sin²x'], correct: '1/cos²x' },
+  ],
+  integral: [
+    { text: '∫x dx = ?',     answers: ['x²', 'x²/2 + C', '2x + C', 'x + C'],           correct: 'x²/2 + C' },
+    { text: '∫1 dx = ?',     answers: ['0', 'x + C', '1/x + C', 'x² + C'],              correct: 'x + C' },
+    { text: '∫x² dx = ?',    answers: ['2x + C', 'x³ + C', 'x³/3 + C', 'x²/2 + C'],    correct: 'x³/3 + C' },
+    { text: '∫cos x dx = ?', answers: ['sin x + C', '−sin x + C', 'cos x + C', 'tg x + C'], correct: 'sin x + C' },
+    { text: '∫sin x dx = ?', answers: ['cos x + C', '−cos x + C', 'sin x + C', '−sin x + C'], correct: '−cos x + C' },
+    { text: '∫eˣ dx = ?',    answers: ['eˣ + C', 'xeˣ + C', 'e^(x+1) + C', '1/eˣ + C'], correct: 'eˣ + C' },
+    { text: '∫(1/x) dx = ?', answers: ['−1/x² + C', 'x² + C', 'ln|x| + C', '1/x² + C'], correct: 'ln|x| + C' },
+    { text: '∫2x dx = ?',    answers: ['x + C', 'x² + C', '2x² + C', 'x²/2 + C'],       correct: 'x² + C' },
+    { text: '∫0 dx = ?',     answers: ['0', '1 + C', 'C', 'x + C'],                      correct: 'C' },
+    { text: '∫x³ dx = ?',    answers: ['3x² + C', 'x⁴/4 + C', 'x⁴ + C', '4x³ + C'],    correct: 'x⁴/4 + C' },
+  ],
+  combinatorics: [
+    { text: 'C(4,2) = ?',  answers: ['4', '6', '8', '12'],  correct: '6' },
+    { text: 'A(4,2) = ?',  answers: ['6', '8', '12', '4'],  correct: '12' },
+    { text: 'C(5,1) = ?',  answers: ['1', '5', '10', '25'], correct: '5' },
+    { text: 'C(5,5) = ?',  answers: ['0', '1', '5', '25'],  correct: '1' },
+    { text: 'C(6,2) = ?',  answers: ['12', '15', '18', '30'], correct: '15' },
+    { text: 'A(5,2) = ?',  answers: ['10', '20', '25', '5'], correct: '20' },
+    { text: '3! = ?',      answers: ['3', '5', '6', '9'],   correct: '6' },
+    { text: '4! = ?',      answers: ['8', '12', '24', '16'], correct: '24' },
+    { text: 'C(n,0) = ?',  answers: ['0', '1', 'n', 'n!'],  correct: '1' },
+    { text: 'C(n,1) = ?',  answers: ['0', '1', 'n', 'n!'],  correct: 'n' },
+  ],
+};
+
+// ══ Утилиты генератора ══
+function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+function makeQ(text, correct) {
+  const c = Math.round(correct * 100) / 100;
+  const wrongs = new Set();
+  let tries = 0;
+  while (wrongs.size < 3 && tries++ < 150) {
+    const scale = Math.max(2, Math.abs(c) * 0.5 + 3);
+    const delta = rand(1, Math.ceil(scale)) * (Math.random() > 0.5 ? 1 : -1);
+    const w = Math.round((c + delta) * 100) / 100;
+    if (String(w) !== String(c)) wrongs.add(w);
+  }
+  const all = [c, ...[...wrongs].slice(0, 3)].sort(() => Math.random() - 0.5);
+  return { text, answers: all.map(String), correct: String(c) };
+}
+
+// ══ Генераторы по темам ══
+const generators = {
+  // 1–4 класс
+  add10()       { const a=rand(1,9),b=rand(1,10-a); return makeQ(`${a} + ${b} = ?`, a+b); },
+  add100()      { const a=rand(1,99),b=rand(1,99); return makeQ(`${a} + ${b} = ?`, a+b); },
+  sub100()      { const b=rand(1,98),a=rand(b+1,99); return makeQ(`${a} − ${b} = ?`, a-b); },
+  add1000()     { const a=rand(100,899),b=rand(1,999-a); return makeQ(`${a} + ${b} = ?`, a+b); },
+  sub1000()     { const b=rand(1,898),a=rand(b+1,999); return makeQ(`${a} − ${b} = ?`, a-b); },
+  multiply2_5() { const t=[2,3,4,5],a=t[rand(0,3)],b=rand(1,10); return makeQ(`${a} × ${b} = ?`, a*b); },
+  multiply6_9() { const t=[6,7,8,9],a=t[rand(0,3)],b=rand(1,10); return makeQ(`${a} × ${b} = ?`, a*b); },
+  divide_easy() { const d=[2,3,4,5],b=d[rand(0,3)],ans=rand(1,10); return makeQ(`${b*ans} ÷ ${b} = ?`, ans); },
+  divide_hard() { const d=[6,7,8,9],b=d[rand(0,3)],ans=rand(1,10); return makeQ(`${b*ans} ÷ ${b} = ?`, ans); },
+  compare() {
+    const a=rand(1,1000),b=rand(1,1000),c=a>b?'>':a<b?'<':'=';
+    return { text:`${a}  ___  ${b}`, answers:['>', '<', '=', '≠'].sort(()=>Math.random()-.5), correct:c };
+  },
+  ordinal() {
+    const start=rand(1,50),n=rand(3,6);
+    const seq=Array.from({length:n},(_,i)=>start+i);
+    const missing=rand(0,n-1);
+    const display=seq.map((v,i)=>i===missing?'?':v).join(', ');
+    return makeQ(`Какое число пропущено?\n${display}`, seq[missing]);
+  },
+  even_odd() {
+    const n=rand(1,100);
+    const correct=n%2===0?'Чётное':'Нечётное';
+    return { text:`${n} — это...`, answers:['Чётное','Нечётное','Простое','Составное'].sort(()=>Math.random()-.5), correct };
+  },
+  round() {
+    const n=rand(11,99);
+    const correct=Math.round(n/10)*10;
+    return makeQ(`Округли ${n} до десятков`, correct);
+  },
+  perimeter() {
+    const w=rand(2,20),h=rand(2,20);
+    return makeQ(`Прямоугольник ${w}×${h} см\nПериметр = ?`, 2*(w+h));
+  },
+  area() {
+    const w=rand(2,15),h=rand(2,15);
+    return makeQ(`Прямоугольник ${w}×${h} см\nПлощадь = ?`, w*h);
+  },
+  fraction_half() {
+    const parts=[2,3,4];
+    const p=parts[rand(0,2)];
+    const whole=rand(2,12)*p;
+    const ans=whole/p;
+    const label=p===2?'½':p===3?'⅓':'¼';
+    return makeQ(`${label} от ${whole} = ?`, ans);
+  },
+  time() {
+    const h=rand(1,12),m=[0,5,10,15,20,30,45][rand(0,6)];
+    const total=h*60+m;
+    const add=[5,10,15,20,30][rand(0,4)];
+    const res=((total+add)%(12*60));
+    const rh=Math.floor(res/60)||12,rm=res%60;
+    return { text:`Сейчас ${h}:${String(m).padStart(2,'0')}\nЧерез ${add} минут будет:`, answers:[`${rh}:${String(rm).padStart(2,'0')}`, `${rh}:${String((rm+10)%60).padStart(2,'0')}`, `${(rh%12)+1}:${String(rm).padStart(2,'0')}`, `${h}:${String((m+add+5)%60).padStart(2,'0')}`].sort(()=>Math.random()-.5), correct:`${rh}:${String(rm).padStart(2,'0')}` };
+  },
+  money() {
+    const price=rand(5,50)*10,qty=rand(2,5),total=price*qty;
+    return makeQ(`Цена товара — ${price} руб.\nКупили ${qty} штуки.\nИтого: ?`, total);
+  },
+  word_add() {
+    const a=rand(5,50),b=rand(5,50);
+    const stories=[
+      `В корзине ${a} яблок.\nПоложили ещё ${b}.\nСколько стало?`,
+      `Саша прочитал ${a} страниц,\nМаша — ${b} страниц.\nВсего страниц:`,
+      `В классе ${a} мальчиков\nи ${b} девочек.\nВсего учеников:`,
+    ];
+    return makeQ(stories[rand(0,2)], a+b);
+  },
+  word_mul() {
+    const a=rand(2,9),b=rand(2,9);
+    const stories=[
+      `В коробке ${a} рядов,\nв каждом по ${b} конфет.\nВсего конфет:`,
+      `${a} команды, в каждой ${b} игроков.\nВсего игроков:`,
+      `Книга стоит ${a*10} руб.\nКупили ${b} книг.\nИтого:`,
+    ];
+    const idx=rand(0,stories.length-1);
+    const answer=idx===2?a*10*b:a*b;
+    return makeQ(stories[idx], answer);
+  },
+
+  // 5–7 класс
+  fractions()  { const d=rand(2,9),a=rand(1,d-1),b=rand(1,d-1),op=Math.random()>.5; if(!op&&a<=b)return generators.fractions(); const n=op?a+b:a-b; return makeQ(`${a}/${d} ${op?'+':'−'} ${b}/${d} = ?`, Math.round(n/d*100)/100); },
+  decimals()   { const a=rand(1,99)/10,b=rand(1,99)/10,op=Math.random()>.5; if(!op&&a<b)return generators.decimals(); return makeQ(`${a} ${op?'+':'−'} ${b} = ?`, Math.round((op?a+b:a-b)*100)/100); },
+  percent()    { const w=rand(1,20)*10,p=[10,20,25,50,75][rand(0,4)]; return makeQ(`${p}% от ${w} = ?`, w*p/100); },
+  ratio()      { const a=rand(2,10),b=rand(2,10),c=rand(1,5),ans=b*c/a; if(!Number.isInteger(ans))return generators.ratio(); return makeQ(`${a} / ${b} = ${c} / ?\nНайди ?`, ans); },
+  negative()   { const a=rand(-20,20),b=rand(-20,20),op=Math.random()>.5; return makeQ(`(${a}) ${op?'+':'−'} (${b}) = ?`, op?a+b:a-b); },
+  linear_eq()  { const x=rand(1,20),a=rand(2,10),b=rand(1,30); return makeQ(`${a}x + ${b} = ${a*x+b}\nНайди x`, x); },
+  powers()     { const base=rand(2,9),exp=rand(2,4); return makeQ(`${base}^${exp} = ?`, Math.pow(base,exp)); },
+
+  // 8–9 класс
+  quadratic()  { const r1=rand(-7,7),r2=rand(-7,7),b=-(r1+r2),c=r1*r2; const bs=b>=0?`+${b}`:`${b}`,cs=c>=0?`+${c}`:`${c}`; return makeQ(`x² ${bs}x ${cs} = 0\nОдин из корней:`, Math.random()>.5?r1:r2); },
+  sqrt()       { const n=rand(2,15); return makeQ(`√${n*n} = ?`, n); },
+  systems_eq() { const x=rand(1,10),y=rand(1,10); return makeQ(`x + y = ${x+y}\nx − y = ${x-y}\nНайди x`, x); },
+  functions()  { const a=rand(1,10),b=rand(-10,10),x=rand(1,10); return makeQ(`f(x) = ${a}x ${b>=0?'+ '+b:'− '+Math.abs(b)}\nf(${x}) = ?`, a*x+b); },
+  pythagorean(){ const triples=[[3,4,5],[5,12,13],[6,8,10],[8,15,17],[9,12,15]],[a,b,c]=triples[rand(0,4)]; return makeQ(`Катеты: ${a} и ${b}\nГипотенуза = ?`, c); },
+  progression(){ const a1=rand(1,20),d=rand(1,10),n=rand(5,10); return makeQ(`a₁=${a1}, d=${d}\nНайди a${n}`, a1+(n-1)*d); },
+  probability(){ const pairs=[[1,2],[1,3],[2,3],[1,4],[3,4],[1,5],[2,5]],[f,t]=pairs[rand(0,pairs.length-1)],k=rand(2,4); return makeQ(`В пакете ${t*k} шаров,\n${f*k} красных.\nP = ?`, Math.round(f/t*100)/100); },
+};
+
+function generateQuestion(topicId) {
+  if (staticQ[topicId]) {
+    const qs = staticQ[topicId];
+    return { ...qs[rand(0, qs.length - 1)] };
+  }
+  const gen = generators[topicId] || generators.add100;
+  try { return gen(); } catch(e) { return generators.add100(); }
+}
+
+function generateSession(topicId) {
+  if (staticQ[topicId]) {
+    return [...staticQ[topicId]].sort(() => Math.random() - 0.5).slice(0, QUESTIONS_PER_SESSION);
+  }
+  return Array.from({ length: QUESTIONS_PER_SESSION }, () => generateQuestion(topicId));
+}
+
+// ══ Состояние ══
+let currentSubject = null;
+let currentGroupId = null;
+let currentTopic   = null;
+let session = { questions: [], index: 0, score: 0, answered: false };
+
+// ══ Навигация ══
+document.querySelectorAll('.subject-card:not(.soon)').forEach(card => {
+  card.addEventListener('click', () => {
+    currentSubject = card.dataset.subject;
+    document.getElementById('gradeScreenSubject').textContent =
+      currentSubject === 'math' ? 'Математика' : 'Физика';
+    buildGradeGroupScreen();
+    showScreen('screenGradeGroup');
+  });
+});
+
+document.getElementById('btnBackGrade').addEventListener('click', () => showScreen('screenHome'));
+document.getElementById('btnBackTopics').addEventListener('click', () => showScreen('screenGradeGroup'));
+document.getElementById('btnBackExercise').addEventListener('click', () => showScreen('screenTopics'));
+document.getElementById('btnNextQuestion').addEventListener('click', nextQuestion);
+document.getElementById('btnRetry').addEventListener('click', startSession);
+document.getElementById('btnOtherTopic').addEventListener('click', () => showScreen('screenTopics'));
+
+// ══ Экран выбора класса ══
+function buildGradeGroupScreen() {
+  const grid = document.getElementById('gradeGroupGrid');
+  grid.innerHTML = '';
+  gradeGroups.forEach(g => {
+    const card = document.createElement('div');
+    card.className = 'grade-card';
+    card.innerHTML = `<span class="grade-icon">${g.icon}</span><span class="grade-label">${g.label}</span><span class="grade-desc">${g.desc}</span>`;
+    card.addEventListener('click', () => {
+      currentGroupId = g.id;
+      buildTopicsScreen();
+      showScreen('screenTopics');
+    });
+    grid.appendChild(card);
+  });
+}
+
+// ══ Экран выбора темы ══
+function buildTopicsScreen() {
+  const topics = mathTopics[currentGroupId] || [];
+  const group  = gradeGroups.find(g => g.id === currentGroupId);
+  document.getElementById('topicsTitle').textContent = group?.label || '';
+
+  const list = document.getElementById('topicsList');
+  list.innerHTML = '';
+  topics.forEach(t => {
+    const item = document.createElement('div');
+    item.className = 'topic-item';
+    item.innerHTML = `
+      <div class="topic-icon-wrap">${t.icon}</div>
+      <span class="topic-name">${t.name}</span>
+      <span class="topic-count">${t.info || ''}</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    `;
+    item.addEventListener('click', () => { currentTopic = t; startSession(); });
+    list.appendChild(item);
+  });
+}
+
+// ══ Сессия ══
+function startSession() {
+  session.questions = generateSession(currentTopic.id);
+  session.index     = 0;
+  session.score     = 0;
+  session.answered  = false;
+
+  document.getElementById('exerciseTopicLabel').textContent = currentTopic.name;
+  document.getElementById('exerciseQuestionMode').style.display = 'flex';
+  document.getElementById('exerciseResultMode').style.display   = 'none';
+  showScreen('screenExercise');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = session.questions[session.index];
+  document.getElementById('exerciseQuestion').textContent    = q.text;
+  document.getElementById('exerciseCount').textContent       = `${session.index + 1} / ${QUESTIONS_PER_SESSION}`;
+  document.getElementById('exerciseScore').textContent       = `★ ${session.score}`;
+  document.getElementById('exerciseProgressFill').style.width = `${(session.index / QUESTIONS_PER_SESSION) * 100}%`;
+  document.getElementById('exerciseHint').innerHTML          = '';
+  document.getElementById('btnNextQuestion').style.display   = 'none';
+  session.answered = false;
+
+  const opts = document.getElementById('exerciseOptions');
+  opts.innerHTML = '';
+  q.answers.forEach(ans => {
+    const btn = document.createElement('button');
+    btn.className   = 'option-btn';
+    btn.textContent = ans;
+    btn.addEventListener('click', () => handleAnswer(ans, btn, q));
+    opts.appendChild(btn);
+  });
+}
+
+function handleAnswer(ans, btn, q) {
+  if (session.answered) return;
+  session.answered = true;
+  const correct = ans === q.correct;
+  if (correct) {
+    session.score++;
+    btn.classList.add('correct');
+    document.getElementById('exerciseHint').innerHTML = '<span style="color:#4ade80">✓ Правильно!</span>';
+  } else {
+    btn.classList.add('wrong');
+    document.getElementById('exerciseHint').innerHTML =
+      `<span style="color:#f87171">✗ Правильный ответ: <b>${q.correct}</b></span>`;
+    document.querySelectorAll('.option-btn').forEach(b => {
+      if (b.textContent === q.correct) b.classList.add('correct');
+    });
+  }
+  document.getElementById('exerciseScore').textContent       = `★ ${session.score}`;
+  document.getElementById('btnNextQuestion').style.display   = 'block';
+  document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+}
+
+function nextQuestion() {
+  if (++session.index >= QUESTIONS_PER_SESSION) return showResult();
+  renderQuestion();
+}
+
+function showResult() {
+  document.getElementById('exerciseQuestionMode').style.display = 'none';
+  document.getElementById('exerciseProgressFill').style.width   = '100%';
+  const pct   = Math.round(session.score / QUESTIONS_PER_SESSION * 100);
+  const emoji = pct >= 80 ? '🏆' : pct >= 60 ? '👍' : pct >= 40 ? '📚' : '💪';
+  const msg   = pct >= 80 ? 'Отличный результат!' : pct >= 60 ? 'Хорошая работа!' : pct >= 40 ? 'Нужно потренироваться' : 'Не сдавайся!';
+  document.getElementById('resultEmoji').textContent    = emoji;
+  document.getElementById('resultTitle').textContent    = msg;
+  document.getElementById('resultScoreBig').textContent = `${session.score} / ${QUESTIONS_PER_SESSION}`;
+  document.getElementById('resultPct').textContent      = `${pct}%`;
+  document.getElementById('exerciseResultMode').style.display = 'flex';
+}
