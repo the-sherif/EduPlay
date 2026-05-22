@@ -12,6 +12,7 @@
   <div id="screenLogin" class="screen active">
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
     <div class="auth-card">
       <div class="auth-logo">🎮</div>
       <h1 class="auth-title">EduPlay</h1>
@@ -31,6 +32,7 @@
   <div id="screenRegister" class="screen">
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
     <div class="auth-card">
       <button class="btn-back" id="backFromRegister">←</button>
       <div class="auth-logo">✨</div>
@@ -64,6 +66,7 @@
   <div id="screenForgot" class="screen">
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
     <div class="auth-card">
       <button class="btn-back" id="backFromForgot">←</button>
       <div class="auth-logo">🔑</div>
@@ -80,6 +83,7 @@
   <div id="screenHome" class="screen">
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
     <div class="home-content">
       <div class="home-header">
         <button class="btn-icon" id="btnProfile" title="Профиль">
@@ -127,6 +131,7 @@
   <div id="screenGradeGroup" class="screen">
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
     <div class="nav-screen-wrap">
       <div class="nav-top-bar">
         <button class="btn-icon" id="btnBackGrade">
@@ -145,6 +150,7 @@
   <div id="screenTopics" class="screen">
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
     <div class="nav-screen-wrap">
       <div class="nav-top-bar">
         <button class="btn-icon" id="btnBackTopics">
@@ -234,10 +240,10 @@
         <span class="settings-label">Уведомления</span>
         <span class="settings-badge">Скоро</span>
       </div>
-      <div class="settings-item">
-        <span class="settings-icon">🌙</span>
-        <span class="settings-label">Тёмная тема</span>
-        <span class="settings-badge">Скоро</span>
+      <div class="settings-item clickable" id="btnOpenThemePicker">
+        <span class="settings-icon">🎨</span>
+        <span class="settings-label">Выбор темы</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
       </div>
       <div class="settings-item">
         <span class="settings-icon">🌐</span>
@@ -245,6 +251,15 @@
         <span class="settings-badge">Скоро</span>
       </div>
       <div class="settings-version">EduPlay v0.1</div>
+    </div>
+  </div>
+
+  <!-- ── Выбор темы (модалка) ── -->
+  <div id="themePickerModal" class="modal-overlay">
+    <div class="modal-sheet theme-picker-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-title">Выбор темы</div>
+      <div class="theme-grid" id="themeGrid"></div>
     </div>
   </div>
 

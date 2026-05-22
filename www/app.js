@@ -1,9 +1,21 @@
 'use strict';
 
 // ══ Темы ══
+const allThemes = [
+  { id: 'dark',    name: 'Тёмная ночь',    emoji: '🌙', bg: '#060918', c1: '#6366f1', c2: '#8b5cf6' },
+  { id: 'girl',    name: 'Розовый сад',    emoji: '🌸', bg: '#fdf2fb', c1: '#c026d3', c2: '#7c3aed' },
+  { id: 'boy',     name: 'Океан',          emoji: '🌊', bg: '#eef6ff', c1: '#2563eb', c2: '#0891b2' },
+  { id: 'kids',    name: 'Яркие краски',   emoji: '🎨', bg: '#fffbf0', c1: '#f97316', c2: '#7c3aed' },
+  { id: 'neutral', name: 'Молочный туман', emoji: '☁️', bg: '#f5f4f0', c1: '#5c6bc0', c2: '#7986cb' },
+  { id: 'forest',  name: 'Зелёный лес',   emoji: '🌿', bg: '#f0fdf4', c1: '#16a34a', c2: '#0d9488' },
+  { id: 'sunset',  name: 'Закат',          emoji: '🌅', bg: '#fff7ed', c1: '#ea580c', c2: '#db2777' },
+  { id: 'galaxy',  name: 'Галактика',      emoji: '🌌', bg: '#0f0728', c1: '#a855f7', c2: '#ec4899' },
+  { id: 'mint',    name: 'Мята',           emoji: '🍃', bg: '#f0fdfa', c1: '#0d9488', c2: '#0891b2' },
+  { id: 'cherry',  name: 'Вишня',          emoji: '🍒', bg: '#fff1f2', c1: '#e11d48', c2: '#f43f5e' },
+];
+
 function getTheme(ageRange, gender) {
-  if (ageRange === 'adult')  return 'neutral';
-  if (ageRange === 'child')  return 'kids';
+  if (ageRange === 'child') return 'kids';
   return gender === 'girl' ? 'girl' : 'boy';
 }
 
@@ -182,6 +194,42 @@ document.getElementById('btnSettings').addEventListener('click', () => {
 settingsModal.addEventListener('click', e => {
   if (e.target === settingsModal) settingsModal.classList.remove('active');
 });
+
+// ── Выбор темы ──
+const themePickerModal = document.getElementById('themePickerModal');
+const themeGrid        = document.getElementById('themeGrid');
+
+document.getElementById('btnOpenThemePicker').addEventListener('click', () => {
+  settingsModal.classList.remove('active');
+  buildThemePicker();
+  themePickerModal.classList.add('active');
+});
+themePickerModal.addEventListener('click', e => {
+  if (e.target === themePickerModal) themePickerModal.classList.remove('active');
+});
+
+function buildThemePicker() {
+  const current = localStorage.getItem('eduTheme') || 'dark';
+  themeGrid.innerHTML = '';
+  allThemes.forEach(t => {
+    const card = document.createElement('div');
+    card.className = 'theme-card' + (t.id === current ? ' active-theme' : '');
+    card.innerHTML = `
+      <div class="theme-preview" style="background:${t.bg}">
+        <div class="theme-dot" style="background:${t.c1}"></div>
+        <div class="theme-dot" style="background:${t.c2}"></div>
+        <span style="font-size:1.4rem">${t.emoji}</span>
+      </div>
+      <div class="theme-label">${t.name}</div>
+    `;
+    card.addEventListener('click', () => {
+      localStorage.setItem('eduTheme', t.id);
+      applyTheme(t.id);
+      themePickerModal.classList.remove('active');
+    });
+    themeGrid.appendChild(card);
+  });
+}
 
 // ── Выход ──
 document.getElementById('btnLogout').addEventListener('click', () => {
