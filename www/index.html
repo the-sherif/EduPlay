@@ -138,6 +138,10 @@
           </svg>
         </button>
       </div>
+      <div class="home-stats">
+        <div class="stat-chip">⭐ <span id="statTotalScore" data-no-translate>—</span></div>
+        <div class="stat-chip">📚 <span id="statSessions" data-no-translate>—</span> <span class="stat-label">сессий</span></div>
+      </div>
       <div class="home-title">Что учим сегодня?</div>
       <div class="subjects-grid">
         <div class="subject-card" data-subject="math">
@@ -249,6 +253,10 @@
         </div>
         <div class="exercise-question" id="exerciseQuestion"></div>
         <div class="exercise-options" id="exerciseOptions"></div>
+        <div class="exercise-input-wrap" id="exerciseInputWrap" style="display:none">
+          <input type="text" inputmode="numeric" id="exerciseInput" class="exercise-input" placeholder="Введи ответ..." autocomplete="off" />
+          <button class="btn-primary exercise-check-btn" id="btnCheckAnswer">Проверить</button>
+        </div>
         <div class="exercise-hint" id="exerciseHint"></div>
         <button class="btn-primary exercise-next-btn" id="btnNextQuestion">Далее →</button>
       </div>
@@ -346,8 +354,10 @@
 
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script src="i18n.js"></script>
   <script src="app.js"></script>
+  <script src="db.js"></script>
   <script src="theme-bg.js"></script>
   <script src="game.js"></script>
 </body>

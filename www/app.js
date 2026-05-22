@@ -113,6 +113,7 @@ auth.onAuthStateChanged(user => {
   if (user) {
     updateUserUI(user);
     showScreen('screenHome');
+    window.loadUserStats?.();
   } else {
     setLoading(document.getElementById('btnLogin'), false);
     setLoading(document.getElementById('btnRegister'), false);

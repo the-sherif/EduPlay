@@ -3,6 +3,16 @@
 const QUESTIONS_PER_SESSION = 10;
 
 // ══ Группы классов ══
+// Темы с полем ввода вместо вариантов
+const INPUT_TOPICS = new Set([
+  'add10','add100','sub100','add1000','sub1000',
+  'multiply2_5','multiply6_9','divide_easy','divide_hard',
+  'ordinal','round','perimeter','area','fraction_half','money',
+  'word_add','word_mul',
+  'fractions','decimals','percent','ratio','negative','linear_eq','powers',
+  'quadratic','sqrt','systems_eq','functions','pythagorean','progression','probability',
+]);
+
 const gradeGroups = [
   { id: 'g1', label: '1–4 класс',   icon: '🌱', desc: 'Основы счёта' },
   { id: 'g2', label: '5–7 класс',   icon: '📐', desc: 'Дроби и уравнения' },
@@ -388,6 +398,17 @@ document.getElementById('btnNextQuestion').addEventListener('click', nextQuestio
 document.getElementById('btnRetry').addEventListener('click', startSession);
 document.getElementById('btnOtherTopic').addEventListener('click', () => showScreen('screenTopics'));
 
+document.getElementById('btnCheckAnswer').addEventListener('click', () => {
+  const q = session.questions[session.index];
+  handleInputAnswer(q);
+});
+document.getElementById('exerciseInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const q = session.questions[session.index];
+    handleInputAnswer(q);
+  }
+});
+
 // ══ Экран выбора класса ══
 function buildGradeGroupScreen() {
   const grid = document.getElementById('gradeGroupGrid');
@@ -472,47 +493,80 @@ function startSession() {
 }
 
 function renderQuestion() {
-  const q = session.questions[session.index];
-  document.getElementById('exerciseQuestion').textContent    = q.text;
-  document.getElementById('exerciseCount').textContent       = `${session.index + 1} / ${QUESTIONS_PER_SESSION}`;
-  document.getElementById('exerciseScore').textContent       = `★ ${session.score}`;
+  const q       = session.questions[session.index];
+  const useInput = INPUT_TOPICS.has(currentTopic.id);
+
+  document.getElementById('exerciseQuestion').textContent     = q.text;
+  document.getElementById('exerciseCount').textContent        = `${session.index + 1} / ${QUESTIONS_PER_SESSION}`;
+  document.getElementById('exerciseScore').textContent        = `★ ${session.score}`;
   document.getElementById('exerciseProgressFill').style.width = `${(session.index / QUESTIONS_PER_SESSION) * 100}%`;
-  document.getElementById('exerciseHint').innerHTML          = '';
-  document.getElementById('btnNextQuestion').style.display   = 'none';
+  document.getElementById('exerciseHint').innerHTML           = '';
+  document.getElementById('btnNextQuestion').style.display    = 'none';
   session.answered = false;
 
-  const opts = document.getElementById('exerciseOptions');
-  opts.innerHTML = '';
-  q.answers.forEach(ans => {
-    const btn = document.createElement('button');
-    btn.className   = 'option-btn';
-    btn.textContent = ans;
-    btn.addEventListener('click', () => handleAnswer(ans, btn, q));
-    opts.appendChild(btn);
-  });
+  const opts      = document.getElementById('exerciseOptions');
+  const inputWrap = document.getElementById('exerciseInputWrap');
+  const input     = document.getElementById('exerciseInput');
+
+  if (useInput) {
+    opts.style.display      = 'none';
+    inputWrap.style.display = 'flex';
+    input.value             = '';
+    input.disabled          = false;
+    input.className         = 'exercise-input';
+    document.getElementById('btnCheckAnswer').disabled = false;
+    setTimeout(() => input.focus(), 50);
+  } else {
+    opts.style.display      = '';
+    inputWrap.style.display = 'none';
+    opts.innerHTML = '';
+    q.answers.forEach(ans => {
+      const btn = document.createElement('button');
+      btn.className   = 'option-btn';
+      btn.textContent = ans;
+      btn.addEventListener('click', () => handleAnswer(ans, btn, q));
+      opts.appendChild(btn);
+    });
+  }
   window.i18n?.el(document.getElementById('exerciseQuestionMode'));
 }
 
 function handleAnswer(ans, btn, q) {
   if (session.answered) return;
   session.answered = true;
-  const correct = ans === q.correct;
+  const correct = String(ans).trim() === String(q.correct).trim();
+  const hint    = document.getElementById('exerciseHint');
+
   if (correct) {
     session.score++;
-    btn.classList.add('correct');
-    document.getElementById('exerciseHint').innerHTML = '<span style="color:#4ade80">✓ Правильно!</span>';
+    if (btn) btn.classList.add('correct');
+    hint.innerHTML = '<span style="color:#4ade80">✓ Правильно!</span>';
   } else {
-    btn.classList.add('wrong');
-    document.getElementById('exerciseHint').innerHTML =
-      `<span style="color:#f87171">✗ Правильный ответ: <b>${q.correct}</b></span>`;
+    if (btn) btn.classList.add('wrong');
+    hint.innerHTML = `<span style="color:#f87171">✗ Правильный ответ: <b>${q.correct}</b></span>`;
     document.querySelectorAll('.option-btn').forEach(b => {
       if (b.textContent === q.correct) b.classList.add('correct');
     });
   }
-  document.getElementById('exerciseScore').textContent       = `★ ${session.score}`;
-  document.getElementById('btnNextQuestion').style.display   = 'block';
+
+  document.getElementById('exerciseScore').textContent     = `★ ${session.score}`;
+  document.getElementById('btnNextQuestion').style.display = 'block';
   document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
-  window.i18n?.el(document.getElementById('exerciseHint'));
+
+  // Блокируем инпут после ответа
+  const input = document.getElementById('exerciseInput');
+  input.disabled = true;
+  input.classList.add(correct ? 'input-correct' : 'input-wrong');
+  document.getElementById('btnCheckAnswer').disabled = true;
+
+  window.i18n?.el(hint);
+}
+
+function handleInputAnswer(q) {
+  const input = document.getElementById('exerciseInput');
+  const ans   = input.value.trim();
+  if (!ans) return;
+  handleAnswer(ans, null, q);
 }
 
 function nextQuestion() {
@@ -532,4 +586,14 @@ function showResult() {
   document.getElementById('resultPct').textContent      = `${pct}%`;
   document.getElementById('exerciseResultMode').style.display = 'flex';
   window.i18n?.el(document.getElementById('exerciseResultMode'));
+
+  window.saveSession?.({
+    topicId:    currentTopic.id,
+    topicName:  currentTopic.name,
+    subject:    currentSubject,
+    gradeGroup: currentGroupId,
+    score:      session.score,
+    total:      QUESTIONS_PER_SESSION,
+    pct,
+  });
 }
