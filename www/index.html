@@ -203,6 +203,24 @@
       <div class="profile-email" id="profileEmail"></div>
       <div class="profile-divider"></div>
       <button class="btn-primary" id="btnLogout" style="background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 4px 20px rgba(239,68,68,0.35)">Выйти из аккаунта</button>
+      <button class="btn-danger-text" id="btnDeleteAccount">Удалить аккаунт</button>
+    </div>
+  </div>
+
+  <!-- ── Подтверждение удаления ── -->
+  <div id="deleteModal" class="modal-overlay">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div style="font-size:2.5rem;margin-top:0.5rem">⚠️</div>
+      <div class="delete-title">Удалить аккаунт?</div>
+      <div class="delete-sub">Все данные будут удалены безвозвратно.</div>
+      <div id="reAuthSection" style="display:none;width:100%">
+        <p style="font-size:0.78rem;color:var(--text-muted);text-align:center;margin-bottom:0.5rem">Введи пароль для подтверждения</p>
+        <input type="password" id="deletePassword" class="input-field" placeholder="Пароль" />
+      </div>
+      <p class="auth-error" id="deleteError"></p>
+      <button class="btn-primary" id="btnConfirmDelete" style="background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 4px 20px rgba(239,68,68,0.35)">Да, удалить</button>
+      <button class="btn-primary btn-ghost" id="btnCancelDelete">Отмена</button>
     </div>
   </div>
 

@@ -189,6 +189,52 @@ document.getElementById('btnLogout').addEventListener('click', () => {
   auth.signOut();
 });
 
+// ── Удаление аккаунта ──
+const deleteModal   = document.getElementById('deleteModal');
+let needsReAuth     = false;
+
+document.getElementById('btnDeleteAccount').addEventListener('click', () => {
+  profileModal.classList.remove('active');
+  needsReAuth = false;
+  document.getElementById('reAuthSection').style.display = 'none';
+  document.getElementById('deletePassword').value = '';
+  document.getElementById('deleteError').textContent = '';
+  const btn = document.getElementById('btnConfirmDelete');
+  btn.textContent = 'Да, удалить'; btn.disabled = false;
+  deleteModal.classList.add('active');
+});
+
+document.getElementById('btnCancelDelete').addEventListener('click', () => deleteModal.classList.remove('active'));
+deleteModal.addEventListener('click', e => { if (e.target === deleteModal) deleteModal.classList.remove('active'); });
+
+document.getElementById('btnConfirmDelete').addEventListener('click', async () => {
+  const btn = document.getElementById('btnConfirmDelete');
+  const errEl = document.getElementById('deleteError');
+  errEl.textContent = '';
+  btn.disabled = true; btn.textContent = 'Удаляем...';
+
+  try {
+    if (needsReAuth) {
+      const pass = document.getElementById('deletePassword').value;
+      if (!pass) { errEl.textContent = 'Введи пароль'; btn.disabled = false; btn.textContent = 'Да, удалить'; return; }
+      const credential = firebase.auth.EmailAuthProvider.credential(auth.currentUser.email, pass);
+      await auth.currentUser.reauthenticateWithCredential(credential);
+    }
+    await auth.currentUser.delete();
+    localStorage.removeItem('eduTheme');
+    deleteModal.classList.remove('active');
+  } catch (e) {
+    if (e.code === 'auth/requires-recent-login') {
+      needsReAuth = true;
+      document.getElementById('reAuthSection').style.display = 'block';
+      errEl.textContent = 'Нужно подтвердить личность';
+    } else {
+      errEl.textContent = friendlyError(e.code);
+    }
+    btn.disabled = false; btn.textContent = 'Да, удалить';
+  }
+});
+
 // ── Навигация между экранами авторизации ──
 document.getElementById('toRegister').addEventListener('click', () => { clearMsg('loginError'); showScreen('screenRegister'); });
 document.getElementById('toForgot').addEventListener('click',   () => { clearMsg('loginError'); showScreen('screenForgot'); });
