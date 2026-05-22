@@ -53,24 +53,35 @@ function loadTheme() {
   const theme = localStorage.getItem('eduTheme');
   if (theme) applyTheme(theme);
 }
-
 loadTheme();
 
-// ── Firebase конфиг (заменить на свой после создания проекта) ──
-const firebaseConfig = {
-  apiKey:            "AIzaSyAtW1nL93lV_JjANK9KpIWfUYeKDoroarw",
-  authDomain:        "eduplay-e2a49.firebaseapp.com",
-  projectId:         "eduplay-e2a49",
-  storageBucket:     "eduplay-e2a49.firebasestorage.app",
-  messagingSenderId: "906506053717",
-  appId:             "1:906506053717:web:b56b136ce349d9efb88cdc",
-};
+// ══ API ══
+async function api(path, opts = {}) {
+  const token = localStorage.getItem('eduToken');
+  const res = await fetch(path, {
+    ...opts,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...opts.headers,
+    },
+    body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
+  });
+  const data = await res.json();
+  if (!res.ok) throw Object.assign(new Error(data.error || 'Ошибка сервера'), { status: res.status });
+  return data;
+}
+window.api = api;
 
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-auth.languageCode = 'ru';
+// ══ Текущий пользователь ══
+let currentUser = null;
 
-// ── Навигация ──
+function setCurrentUser(user) {
+  currentUser = user;
+  if (user) updateUserUI(user);
+}
+
+// ══ Навигация ══
 const GAME_SCREENS = ['screenGrades', 'screenTopics', 'screenTheory', 'screenExercise'];
 
 function showScreen(id) {
@@ -85,10 +96,10 @@ function showScreen(id) {
   }
 }
 
-// ── Хелпер перевода ──
+// ══ Хелперы UI ══
 const tx = text => window.i18n?.tSync(text) ?? text;
 
-function setError(id, msg) { document.getElementById(id).textContent = tx(msg); }
+function setError(id, msg) { document.getElementById(id).textContent = msg; }
 function clearMsg(...ids) { ids.forEach(id => document.getElementById(id).textContent = ''); }
 function setLoading(btn, loading) {
   btn.disabled = loading;
@@ -100,28 +111,35 @@ function setLoading(btn, loading) {
   btn.dataset.label = btn.textContent;
 });
 
-// ── Обновление UI пользователя ──
-function updateUserUI(user, overrideName) {
-  const name = overrideName || user.displayName || user.email.split('@')[0];
+function updateUserUI(user) {
+  const name = user.name || user.email.split('@')[0];
   document.getElementById('userName').textContent = name;
   document.getElementById('userEmailLabel').textContent = user.email;
 }
 
-// ── Слежка за состоянием авторизации ──
-auth.onAuthStateChanged(user => {
-  hideLoader();
-  if (user) {
-    updateUserUI(user);
+// ══ Инициализация авторизации ══
+async function initAuth() {
+  const token = localStorage.getItem('eduToken');
+  if (!token) {
+    hideLoader();
+    showScreen('screenLogin');
+    return;
+  }
+  try {
+    const { user } = await api('/api/auth/me');
+    setCurrentUser(user);
     showScreen('screenHome');
     window.loadUserStats?.();
-  } else {
-    setLoading(document.getElementById('btnLogin'), false);
-    setLoading(document.getElementById('btnRegister'), false);
+  } catch {
+    localStorage.removeItem('eduToken');
     showScreen('screenLogin');
+  } finally {
+    hideLoader();
   }
-});
+}
+initAuth();
 
-// ── Логин ──
+// ══ Логин ══
 document.getElementById('btnLogin').addEventListener('click', async () => {
   const email = document.getElementById('loginEmail').value.trim();
   const pass  = document.getElementById('loginPassword').value;
@@ -132,14 +150,18 @@ document.getElementById('btnLogin').addEventListener('click', async () => {
   const btn = document.getElementById('btnLogin');
   setLoading(btn, true);
   try {
-    await auth.signInWithEmailAndPassword(email, pass);
+    const { token, user } = await api('/api/auth/login', { method: 'POST', body: { email, password: pass } });
+    localStorage.setItem('eduToken', token);
+    setCurrentUser(user);
+    showScreen('screenHome');
+    window.loadUserStats?.();
   } catch (e) {
-    setError('loginError', friendlyError(e.code));
+    setError('loginError', e.message);
     setLoading(btn, false);
   }
 });
 
-// ── Регистрация: выбор возраста и пола ──
+// ══ Регистрация: выбор возраста и пола ══
 let selectedAge    = null;
 let selectedGender = null;
 
@@ -165,7 +187,7 @@ document.getElementById('genderSelector').addEventListener('click', e => {
   selectedGender = btn.dataset.gender;
 });
 
-// ── Регистрация ──
+// ══ Регистрация ══
 document.getElementById('btnRegister').addEventListener('click', async () => {
   const name    = document.getElementById('regName').value.trim();
   const email   = document.getElementById('regEmail').value.trim();
@@ -182,19 +204,23 @@ document.getElementById('btnRegister').addEventListener('click', async () => {
   const btn = document.getElementById('btnRegister');
   setLoading(btn, true);
   try {
-    const cred = await auth.createUserWithEmailAndPassword(email, pass);
-    await cred.user.updateProfile({ displayName: name });
+    const { token, user } = await api('/api/auth/register', {
+      method: 'POST',
+      body: { name, email, password: pass, ageGroup: selectedAge, gender: selectedGender },
+    });
+    localStorage.setItem('eduToken', token);
+    setCurrentUser(user);
     const theme = getTheme(selectedAge, selectedGender);
     localStorage.setItem('eduTheme', theme);
     applyTheme(theme);
-    updateUserUI(cred.user, name);
+    showScreen('screenHome');
   } catch (e) {
-    setError('registerError', friendlyError(e.code));
+    setError('registerError', e.message);
     setLoading(btn, false);
   }
 });
 
-// ── Восстановление пароля ──
+// ══ Восстановление пароля ══
 let forgotLastSent = 0;
 const FORGOT_COOLDOWN = 60_000;
 
@@ -217,12 +243,12 @@ document.getElementById('btnForgot').addEventListener('click', async () => {
 
   forgotLastSent = now;
   try {
-    await auth.sendPasswordResetEmail(email);
+    await api('/api/auth/forgot-password', { method: 'POST', body: { email } });
     document.getElementById('forgotForm').style.display = 'none';
     document.getElementById('forgotDone').style.display = '';
   } catch (e) {
     forgotLastSent = 0;
-    setError('forgotError', friendlyError(e.code));
+    setError('forgotError', e.message);
   }
 });
 
@@ -234,32 +260,29 @@ document.getElementById('backFromForgotDone').addEventListener('click', () => {
   showScreen('screenLogin');
 });
 
-// ── Профиль ──
-const profileModal   = document.getElementById('profileModal');
-const settingsModal  = document.getElementById('settingsModal');
+// ══ Профиль ══
+const profileModal  = document.getElementById('profileModal');
+const settingsModal = document.getElementById('settingsModal');
 
 document.getElementById('btnProfile').addEventListener('click', () => {
-  const user = auth.currentUser;
-  if (!user) return;
-  const name = user.displayName || user.email.split('@')[0];
-  document.getElementById('profileAvatarBig').textContent = name.charAt(0).toUpperCase(); // большой аватар в модалке оставляем
-  document.getElementById('profileName').textContent = name;
-  document.getElementById('profileEmail').textContent = user.email;
+  if (!currentUser) return;
+  const name = currentUser.name || currentUser.email.split('@')[0];
+  document.getElementById('profileAvatarBig').textContent = name.charAt(0).toUpperCase();
+  document.getElementById('profileName').textContent  = name;
+  document.getElementById('profileEmail').textContent = currentUser.email;
   profileModal.classList.add('active');
 });
 profileModal.addEventListener('click', e => {
   if (e.target === profileModal) profileModal.classList.remove('active');
 });
 
-// ── Настройки ──
-document.getElementById('btnSettings').addEventListener('click', () => {
-  settingsModal.classList.add('active');
-});
+// ══ Настройки ══
+document.getElementById('btnSettings').addEventListener('click', () => settingsModal.classList.add('active'));
 settingsModal.addEventListener('click', e => {
   if (e.target === settingsModal) settingsModal.classList.remove('active');
 });
 
-// ── Выбор темы ──
+// ══ Выбор темы ══
 const themePickerModal = document.getElementById('themePickerModal');
 const themeGrid        = document.getElementById('themeGrid');
 
@@ -309,26 +332,24 @@ function renderThemeGrid() {
   });
 }
 
-function buildThemePicker() {
-  renderThemeGrid();
-}
+function buildThemePicker() { renderThemeGrid(); }
 
-// ── Выход ──
+// ══ Выход ══
 document.getElementById('btnLogout').addEventListener('click', () => {
   profileModal.classList.remove('active');
-  auth.signOut();
+  localStorage.removeItem('eduToken');
+  currentUser = null;
+  showScreen('screenLogin');
 });
 
-// ── Удаление аккаунта ──
-const deleteModal   = document.getElementById('deleteModal');
-let needsReAuth     = false;
+// ══ Удаление аккаунта ══
+const deleteModal = document.getElementById('deleteModal');
 
 document.getElementById('btnDeleteAccount').addEventListener('click', () => {
   profileModal.classList.remove('active');
-  needsReAuth = false;
-  document.getElementById('reAuthSection').style.display = 'none';
   document.getElementById('deletePassword').value = '';
   document.getElementById('deleteError').textContent = '';
+  document.getElementById('reAuthSection').style.display = 'block';
   const btn = document.getElementById('btnConfirmDelete');
   btn.textContent = tx('Да, удалить'); btn.disabled = false;
   deleteModal.classList.add('active');
@@ -341,42 +362,35 @@ document.getElementById('btnConfirmDelete').addEventListener('click', async () =
   const btn = document.getElementById('btnConfirmDelete');
   const errEl = document.getElementById('deleteError');
   errEl.textContent = '';
-  btn.disabled = true; btn.textContent = tx('Удаляем...');
 
+  const pass = document.getElementById('deletePassword').value;
+  if (!pass) { errEl.textContent = tx('Введи пароль'); return; }
+
+  btn.disabled = true; btn.textContent = tx('Удаляем...');
   try {
-    if (needsReAuth) {
-      const pass = document.getElementById('deletePassword').value;
-      if (!pass) { errEl.textContent = tx('Введи пароль'); btn.disabled = false; btn.textContent = tx('Да, удалить'); return; }
-      const credential = firebase.auth.EmailAuthProvider.credential(auth.currentUser.email, pass);
-      await auth.currentUser.reauthenticateWithCredential(credential);
-    }
-    await auth.currentUser.delete();
+    await api('/api/auth/account', { method: 'DELETE', body: { password: pass } });
+    localStorage.removeItem('eduToken');
     localStorage.removeItem('eduTheme');
+    currentUser = null;
     deleteModal.classList.remove('active');
+    showScreen('screenLogin');
   } catch (e) {
-    if (e.code === 'auth/requires-recent-login') {
-      needsReAuth = true;
-      document.getElementById('reAuthSection').style.display = 'block';
-      errEl.textContent = tx('Нужно подтвердить личность');
-    } else {
-      errEl.textContent = tx(friendlyError(e.code));
-    }
+    errEl.textContent = e.message;
     btn.disabled = false; btn.textContent = tx('Да, удалить');
   }
 });
 
-// ── Навигация между экранами авторизации ──
+// ══ Навигация между экранами авторизации ══
 document.getElementById('toRegister').addEventListener('click', () => { clearMsg('loginError'); showScreen('screenRegister'); });
 document.getElementById('toForgot').addEventListener('click',   () => { clearMsg('loginError'); showScreen('screenForgot'); });
 document.getElementById('backFromRegister').addEventListener('click', () => showScreen('screenLogin'));
 document.getElementById('backFromForgot').addEventListener('click',   () => showScreen('screenLogin'));
 
-// ── Выбор языка ──
+// ══ Выбор языка ══
 const langPickerModal = document.getElementById('langPickerModal');
 
 document.getElementById('btnOpenLangPicker').addEventListener('click', () => {
   settingsModal.classList.remove('active');
-  // Подсветить активный язык
   document.querySelectorAll('.lang-option').forEach(btn => {
     btn.classList.toggle('active-lang', btn.dataset.lang === window.i18n.lang);
   });
@@ -388,27 +402,10 @@ langPickerModal.addEventListener('click', e => {
 document.querySelectorAll('.lang-option').forEach(btn => {
   btn.addEventListener('click', () => {
     window.i18n.apply(btn.dataset.lang);
-    auth.languageCode = btn.dataset.lang;
     langPickerModal.classList.remove('active');
-    // Обновить data-label у кнопок входа/регистрации
     ['btnLogin', 'btnRegister'].forEach(id => {
       const b = document.getElementById(id);
       if (!b.disabled) b.dataset.label = b.textContent;
     });
   });
 });
-
-// ── Перевод ошибок Firebase ──
-function friendlyError(code) {
-  const map = {
-    'auth/user-not-found':      'Пользователь не найден',
-    'auth/wrong-password':      'Неверный пароль',
-    'auth/email-already-in-use':'Этот email уже используется',
-    'auth/invalid-email':       'Неверный формат email',
-    'auth/weak-password':       'Пароль слишком простой',
-    'auth/too-many-requests':   'Слишком много попыток. Попробуй позже',
-    'auth/network-request-failed': 'Нет соединения',
-    'auth/invalid-credential':  'Неверный email или пароль',
-  };
-  return map[code] || 'Что-то пошло не так';
-}
