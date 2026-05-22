@@ -9,6 +9,7 @@ const INPUT_TOPICS = new Set([
   'multiply2_5','multiply6_9','divide_easy','divide_hard',
   'ordinal','round','perimeter','area','fraction_half','money',
   'word_add','word_mul',
+  'big_numbers','equation_simple','speed',
   'fractions','decimals','percent','ratio','negative','linear_eq','powers',
   'quadratic','sqrt','systems_eq','functions','pythagorean','progression','probability',
 ]);
@@ -23,27 +24,38 @@ const gradeGroups = [
 // ══ Темы по математике ══
 const mathTopics = {
   g1: [
-    { id: 'count_basics', name: 'Начало счёта',            icon: '🌟', info: '1 класс' },
-    { id: 'add10',       name: 'Счёт до 10',              icon: '🔢', info: '1 класс' },
-    { id: 'add100',      name: 'Сложение до 100',          icon: '➕', info: '1–2 класс' },
-    { id: 'sub100',      name: 'Вычитание до 100',         icon: '➖', info: '1–2 класс' },
-    { id: 'add1000',     name: 'Сложение до 1000',         icon: '➕', info: '3 класс' },
-    { id: 'sub1000',     name: 'Вычитание до 1000',        icon: '➖', info: '3 класс' },
-    { id: 'multiply2_5', name: 'Таблица × 2, 3, 4, 5',    icon: '✖️', info: '2 класс' },
-    { id: 'multiply6_9', name: 'Таблица × 6, 7, 8, 9',    icon: '✖️', info: '2–3 класс' },
-    { id: 'divide_easy', name: 'Деление (на 2–5)',         icon: '➗', info: '2 класс' },
-    { id: 'divide_hard', name: 'Деление (на 6–9)',         icon: '➗', info: '3 класс' },
-    { id: 'compare',     name: 'Сравнение чисел',          icon: '⚖️', info: '1 класс' },
-    { id: 'ordinal',     name: 'Порядок чисел',            icon: '📏', info: '1 класс' },
-    { id: 'even_odd',    name: 'Чётные и нечётные',        icon: '🔁', info: '2 класс' },
-    { id: 'round',       name: 'Округление',               icon: '⭕', info: '3 класс' },
-    { id: 'perimeter',   name: 'Периметр',                 icon: '📐', info: '2–3 класс' },
-    { id: 'area',        name: 'Площадь',                  icon: '▭',  info: '3 класс' },
+    // ── 1 класс ──
+    { id: 'count_basics',  name: 'Начало счёта',           icon: '🌟', info: '1 класс' },
+    { id: 'add10',         name: 'Сложение до 10',         icon: '➕', info: '1 класс' },
+    { id: 'compare',       name: 'Сравнение чисел',        icon: '⚖️', info: '1 класс' },
+    { id: 'ordinal',       name: 'Порядок чисел',          icon: '📏', info: '1 класс' },
+    // ── 1–2 класс ──
+    { id: 'add100',        name: 'Сложение до 100',        icon: '➕', info: '1–2 класс' },
+    { id: 'sub100',        name: 'Вычитание до 100',       icon: '➖', info: '1–2 класс' },
+    { id: 'word_add',      name: 'Задачи на сложение',     icon: '📝', info: '1–2 класс' },
+    // ── 2 класс ──
+    { id: 'multiply2_5',   name: 'Таблица × 2, 3, 4, 5',  icon: '✖️', info: '2 класс' },
+    { id: 'divide_easy',   name: 'Деление (на 2–5)',       icon: '➗', info: '2 класс' },
+    { id: 'even_odd',      name: 'Чётные и нечётные',      icon: '🔁', info: '2 класс' },
+    { id: 'money',         name: 'Деньги и цены',          icon: '💰', info: '2 класс' },
+    // ── 2–3 класс ──
+    { id: 'multiply6_9',   name: 'Таблица × 6, 7, 8, 9',  icon: '✖️', info: '2–3 класс' },
+    { id: 'time',          name: 'Время (часы и минуты)',  icon: '🕐', info: '2–3 класс' },
+    { id: 'perimeter',     name: 'Периметр',               icon: '📐', info: '2–3 класс' },
+    { id: 'word_mul',      name: 'Задачи на умножение',    icon: '📝', info: '2–3 класс' },
+    // ── 3 класс ──
+    { id: 'add1000',       name: 'Сложение до 1000',       icon: '➕', info: '3 класс' },
+    { id: 'sub1000',       name: 'Вычитание до 1000',      icon: '➖', info: '3 класс' },
+    { id: 'divide_hard',   name: 'Деление (на 6–9)',       icon: '➗', info: '3 класс' },
+    { id: 'round',         name: 'Округление',             icon: '⭕', info: '3 класс' },
+    { id: 'area',          name: 'Площадь',                icon: '▭',  info: '3 класс' },
     { id: 'fraction_half', name: 'Доли (½, ¼, ⅓)',        icon: '½',  info: '3 класс' },
-    { id: 'time',        name: 'Время (часы и минуты)',    icon: '🕐', info: '2–3 класс' },
-    { id: 'money',       name: 'Деньги и цены',            icon: '💰', info: '2 класс' },
-    { id: 'word_add',    name: 'Задачи на сложение',       icon: '📝', info: '1–2 класс' },
-    { id: 'word_mul',    name: 'Задачи на умножение',      icon: '📝', info: '2–3 класс' },
+    // ── 4 класс ──
+    { id: 'big_numbers',    name: 'Большие числа',         icon: '🔭', info: '4 класс' },
+    { id: 'div_remainder',  name: 'Деление с остатком',   icon: '➗', info: '4 класс' },
+    { id: 'order_ops',      name: 'Порядок действий',      icon: '🔢', info: '4 класс' },
+    { id: 'equation_simple',name: 'Уравнения',             icon: '🔣', info: '4 класс' },
+    { id: 'speed',          name: 'Скорость и время',      icon: '🚀', info: '4 класс' },
   ],
   g2: [
     { id: 'fractions',  name: 'Обыкновенные дроби',   icon: '½',   info: '5 класс' },
@@ -178,6 +190,33 @@ const theoryData = {
     explain: 'Слова «по», «каждый», «в каждом», «одинаковое количество» — знак умножения! Нарисуй группы и посчитай.',
     rule:    'Групп × размер группы = всего\n«По столько-то» → ×',
     example: '4 коробки, в каждой 6 мячей.\nСколько мячей всего?\n4 × 6 = 24 мяча',
+  },
+
+  // ── 4 класс ──
+  big_numbers: {
+    explain: 'Ты уже знаешь числа до тысячи. Теперь идём дальше!\n\n1 000 — тысяча\n10 000 — десять тысяч\n100 000 — сто тысяч\n1 000 000 — миллион!\n\nЧтобы читать большие числа — разбивай их на группы по 3 цифры справа налево:\n345 678 → «триста сорок пять тысяч шестьсот семьдесят восемь»',
+    rule:    'Классы чисел (справа налево):\nЕдиницы (1, 10, 100)\nТысячи (1 000, 10 000, 100 000)\nМиллионы (1 000 000...)',
+    example: 'Запиши число: двести три тысячи пятьдесят\nОтвет: 203 050',
+  },
+  div_remainder: {
+    explain: 'Иногда при делении не получается поровну — остаётся кусочек. Это и есть остаток!\n\nНапример: 17 конфет на 5 детей.\n5 × 3 = 15 → каждому по 3, осталось 17 − 15 = 2 конфеты.\n\nЗапись: 17 ÷ 5 = 3 (ост. 2)\nОстаток всегда МЕНЬШЕ делителя!',
+    rule:    'Делимое ÷ Делитель = Частное (ост. Остаток)\nПроверка: Частное × Делитель + Остаток = Делимое',
+    example: '23 ÷ 4 = ?\n4 × 5 = 20, осталось 23 − 20 = 3\nОтвет: 5 (ост. 3)',
+  },
+  order_ops: {
+    explain: 'Когда в примере несколько действий — важно делать их в правильном порядке!\n\n1. Сначала — что в СКОБКАХ\n2. Потом — умножение и деление (слева направо)\n3. Потом — сложение и вычитание (слева направо)\n\nБез скобок умножение «сильнее» сложения!',
+    rule:    '( ) → × и ÷ → + и −\n2 + 3 × 4 = 2 + 12 = 14\n(2 + 3) × 4 = 5 × 4 = 20',
+    example: '10 − 2 × 3 = ?\nСначала: 2 × 3 = 6\nПотом: 10 − 6 = 4\nОтвет: 4',
+  },
+  equation_simple: {
+    explain: 'Уравнение — это пример с неизвестным числом. Неизвестное обозначают буквой X (или другой буквой).\n\nЧтобы найти X — сделай обратное действие:\n• Если X + 5 = 12 → X = 12 − 5 = 7\n• Если X − 3 = 8 → X = 8 + 3 = 11\n• Если X × 4 = 20 → X = 20 ÷ 4 = 5\n• Если X ÷ 3 = 6 → X = 6 × 3 = 18',
+    rule:    'X + a = b → X = b − a\nX − a = b → X = b + a\nX × a = b → X = b ÷ a\nX ÷ a = b → X = b × a',
+    example: 'X + 8 = 15\nX = 15 − 8\nОтвет: X = 7',
+  },
+  speed: {
+    explain: 'Скорость — это как быстро ты движешься. Если едешь со скоростью 60 км/ч — за 1 час проедешь 60 км.\n\nТри друга: скорость (V), время (t) и расстояние (S). Они всегда связаны!\n\nЗнаешь двух — найдёшь третьего.',
+    rule:    'S = V × t (расстояние = скорость × время)\nV = S ÷ t (скорость = расстояние ÷ время)\nt = S ÷ V (время = расстояние ÷ скорость)',
+    example: 'Велосипедист едет 15 км/ч.\nЗа 3 часа проедет:\nS = 15 × 3 = 45 км',
   },
 };
 
@@ -360,6 +399,61 @@ const generators = {
     const idx=rand(0,stories.length-1);
     const answer=idx===2?a*10*b:a*b;
     return makeQ(stories[idx], answer);
+  },
+
+  // ── 4 класс ──
+  big_numbers() {
+    const type = rand(0, 2);
+    if (type === 0) {
+      const a = rand(1000, 999999), b = rand(1000, 999999);
+      const c = a > b ? '>' : a < b ? '<' : '=';
+      return { text: `${a.toLocaleString('ru')}  ___  ${b.toLocaleString('ru')}`, answers: ['>', '<', '=', '≠'].sort(() => Math.random() - .5), correct: c };
+    }
+    if (type === 1) {
+      const v = rand(10, 999) * 1000 + rand(0, 999);
+      return makeQ(`Запиши число: ${v.toLocaleString('ru')}\nСколько тысяч?`, Math.floor(v / 1000));
+    }
+    const n = rand(100000, 999999);
+    return makeQ(`Округли ${n.toLocaleString('ru')} до тысяч`, Math.round(n / 1000) * 1000);
+  },
+  div_remainder() {
+    const b = rand(2, 9), q = rand(1, 10), r = rand(1, b - 1);
+    const a = b * q + r;
+    return makeQ(`${a} ÷ ${b} = ?\n(введи остаток)`, r);
+  },
+  order_ops() {
+    const type = rand(0, 2);
+    if (type === 0) {
+      const a=rand(2,9),b=rand(2,9),c=rand(2,9);
+      return makeQ(`${a} + ${b} × ${c} = ?`, a + b * c);
+    }
+    if (type === 1) {
+      const a=rand(2,9),b=rand(2,9),c=rand(2,9);
+      return makeQ(`(${a} + ${b}) × ${c} = ?`, (a + b) * c);
+    }
+    const a=rand(10,30),b=rand(2,5),c=rand(1,5);
+    return makeQ(`${a} − ${b} × ${c} = ?`, a - b * c);
+  },
+  equation_simple() {
+    const x = rand(1, 20);
+    const type = rand(0, 3);
+    if (type === 0) { const a = rand(1, 30); return makeQ(`x + ${a} = ${x + a}\nНайди x`, x); }
+    if (type === 1) { const a = rand(1, 30); return makeQ(`x − ${a} = ${x}\nНайди x`, x + a); }
+    if (type === 2) { const a = rand(2, 10); return makeQ(`x × ${a} = ${x * a}\nНайди x`, x); }
+    const a = rand(2, 10); return makeQ(`x ÷ ${a} = ${x}\nНайди x`, x * a);
+  },
+  speed() {
+    const type = rand(0, 2);
+    if (type === 0) {
+      const v = rand(2, 15) * 5, t = rand(2, 6);
+      return makeQ(`Скорость ${v} км/ч, время ${t} ч.\nРасстояние = ?`, v * t);
+    }
+    if (type === 1) {
+      const s = rand(2, 10) * 30, t = rand(2, 5);
+      return makeQ(`Расстояние ${s} км, время ${t} ч.\nСкорость = ?`, s / t);
+    }
+    const v = rand(2, 15) * 10, s = rand(2, 8) * v;
+    return makeQ(`Скорость ${v} км/ч, расстояние ${s} км.\nВремя = ?`, s / v);
   },
 
   // 5–7 класс
