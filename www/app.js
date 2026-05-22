@@ -20,8 +20,15 @@ function getTheme(ageRange, gender) {
 }
 
 function applyTheme(theme) {
-  document.body.classList.remove('theme-kids', 'theme-girl', 'theme-boy', 'theme-neutral');
-  if (theme) document.body.classList.add('theme-' + theme);
+  document.body.classList.remove('theme-kids', 'theme-girl', 'theme-boy', 'theme-neutral', 'theme-forest', 'theme-sunset', 'theme-galaxy', 'theme-mint', 'theme-cherry');
+  if (theme && theme !== 'dark') document.body.classList.add('theme-' + theme);
+}
+
+function hideLoader() {
+  const loader = document.getElementById('screenLoader');
+  if (!loader) return;
+  loader.classList.add('hiding');
+  setTimeout(() => { loader.style.display = 'none'; }, 400);
 }
 
 function loadTheme() {
@@ -71,6 +78,7 @@ function updateUserUI(user, overrideName) {
 
 // ── Слежка за состоянием авторизации ──
 auth.onAuthStateChanged(user => {
+  hideLoader();
   if (user) {
     updateUserUI(user);
     showScreen('screenHome');
