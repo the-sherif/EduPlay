@@ -8,8 +8,34 @@
 </head>
 <body>
 
+  <!-- ── Фоновые частицы (животные темы) ── -->
+  <div id="themeBg"></div>
+
+  <!-- ── Лоадер ── -->
+  <div id="screenLoader">
+    <div aria-label="Hamster running in a wheel" role="img" class="wheel-and-hamster">
+      <div class="wheel"></div>
+      <div class="hamster">
+        <div class="hamster__body">
+          <div class="hamster__head">
+            <div class="hamster__ear"></div>
+            <div class="hamster__eye"></div>
+            <div class="hamster__nose"></div>
+          </div>
+          <div class="hamster__limb hamster__limb--fr"></div>
+          <div class="hamster__limb hamster__limb--fl"></div>
+          <div class="hamster__limb hamster__limb--br"></div>
+          <div class="hamster__limb hamster__limb--bl"></div>
+          <div class="hamster__tail"></div>
+        </div>
+      </div>
+      <div class="spoke"></div>
+    </div>
+    <div class="loader-text">Загружаем...</div>
+  </div>
+
   <!-- ── Логин ── -->
-  <div id="screenLogin" class="screen active">
+  <div id="screenLogin" class="screen">
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
     <div class="orb orb-3"></div>
@@ -67,15 +93,24 @@
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
     <div class="orb orb-3"></div>
-    <div class="auth-card">
+
+    <!-- Форма -->
+    <div class="auth-card" id="forgotForm">
       <button class="btn-back" id="backFromForgot">←</button>
       <div class="auth-logo">🔑</div>
       <h1 class="auth-title">Восстановление</h1>
       <p class="auth-sub">Введи email — пришлём ссылку для сброса пароля</p>
       <input type="email" id="forgotEmail" class="input-field" placeholder="Email" />
       <button class="btn-primary" id="btnForgot">Отправить ссылку</button>
-      <p class="auth-error"   id="forgotError"></p>
-      <p class="auth-success" id="forgotSuccess"></p>
+      <p class="auth-error" id="forgotError"></p>
+    </div>
+
+    <!-- Успех -->
+    <div class="auth-card" id="forgotDone" style="display:none">
+      <div class="auth-logo">✉️</div>
+      <h1 class="auth-title">Готово!</h1>
+      <p class="auth-sub">Письмо отправлено на указанный email. Проверь почту (и папку «Спам»).</p>
+      <button class="btn-primary" id="backFromForgotDone">Вернуться</button>
     </div>
   </div>
 
@@ -93,8 +128,8 @@
           </svg>
         </button>
         <div class="home-user-info">
-          <div class="home-username" id="userName">Игрок</div>
-          <div class="home-useremail" id="userEmailLabel"></div>
+          <div class="home-username" id="userName" data-no-translate>Игрок</div>
+          <div class="home-useremail" id="userEmailLabel" data-no-translate></div>
         </div>
         <button class="btn-icon" id="btnSettings" title="Настройки">
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -165,6 +200,35 @@
     </div>
   </div>
 
+  <!-- ── Теория ── -->
+  <div id="screenTheory" class="screen">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="theory-wrap">
+      <div class="nav-top-bar">
+        <button class="btn-icon" id="btnBackTheory">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div>
+          <div class="nav-title" id="theoryTitle"></div>
+          <div class="nav-sub">Теория</div>
+        </div>
+      </div>
+      <div class="theory-icon" id="theoryIcon"></div>
+      <p class="theory-explain" id="theoryExplain"></p>
+      <div class="theory-rule-box">
+        <div class="theory-rule-label">Правило</div>
+        <div class="theory-rule" id="theoryRule"></div>
+      </div>
+      <div class="theory-example-box">
+        <div class="theory-example-label">Пример</div>
+        <div class="theory-example" id="theoryExample"></div>
+      </div>
+      <button class="btn-primary" id="btnStartFromTheory">Понятно, начинаем! →</button>
+    </div>
+  </div>
+
   <!-- ── Тренажёр ── -->
   <div id="screenExercise" class="screen">
     <div class="exercise-container">
@@ -204,9 +268,9 @@
   <div id="profileModal" class="modal-overlay">
     <div class="modal-sheet">
       <div class="modal-handle"></div>
-      <div class="profile-avatar-big" id="profileAvatarBig">И</div>
-      <div class="profile-name" id="profileName">Игрок</div>
-      <div class="profile-email" id="profileEmail"></div>
+      <div class="profile-avatar-big" id="profileAvatarBig" data-no-translate>И</div>
+      <div class="profile-name" id="profileName" data-no-translate>Игрок</div>
+      <div class="profile-email" id="profileEmail" data-no-translate></div>
       <div class="profile-divider"></div>
       <button class="btn-primary" id="btnLogout" style="background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 4px 20px rgba(239,68,68,0.35)">Выйти из аккаунта</button>
       <button class="btn-danger-text" id="btnDeleteAccount">Удалить аккаунт</button>
@@ -245,12 +309,24 @@
         <span class="settings-label">Выбор темы</span>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
       </div>
-      <div class="settings-item">
+      <div class="settings-item clickable" id="btnOpenLangPicker">
         <span class="settings-icon">🌐</span>
         <span class="settings-label">Язык</span>
-        <span class="settings-badge">Скоро</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
       </div>
       <div class="settings-version">EduPlay v0.1</div>
+    </div>
+  </div>
+
+  <!-- ── Выбор языка (модалка) ── -->
+  <div id="langPickerModal" class="modal-overlay">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-title">Язык / Language</div>
+      <div class="lang-options">
+        <button class="lang-option" data-lang="ru" data-no-translate>🇷🇺 Русский</button>
+        <button class="lang-option" data-lang="en" data-no-translate>🇬🇧 English</button>
+      </div>
     </div>
   </div>
 
@@ -259,13 +335,20 @@
     <div class="modal-sheet theme-picker-sheet">
       <div class="modal-handle"></div>
       <div class="modal-title">Выбор темы</div>
+      <div class="theme-tabs" id="themeTabs">
+        <button class="theme-tab active" data-cat="standard">Стандартные</button>
+        <button class="theme-tab" data-cat="animal">Животные</button>
+        <button class="theme-tab" data-cat="cartoon">Мультяшные</button>
+      </div>
       <div class="theme-grid" id="themeGrid"></div>
     </div>
   </div>
 
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="i18n.js"></script>
   <script src="app.js"></script>
+  <script src="theme-bg.js"></script>
   <script src="game.js"></script>
 </body>
 </html>

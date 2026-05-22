@@ -61,6 +61,110 @@ const mathTopics = {
   ],
 };
 
+// ══ Теория для тем 1–4 класса ══
+const theoryData = {
+  add10: {
+    explain: 'Сложение — это когда мы объединяем две группы в одну. Например, у тебя 3 яблока, мама дала ещё 4 — стало 7! Считай по пальцам или рисуй точки.',
+    rule:    'Слагаемое + Слагаемое = Сумма\n3 + 4 = 7',
+    example: '5 + 3 = ?\nОтвет: 8\n(5 яблок и ещё 3 = 8 яблок)',
+  },
+  add100: {
+    explain: 'Складываем единицы с единицами, десятки с десятками. Если сумма единиц больше 9 — «переносим» лишнее в десятки.',
+    rule:    'Сначала единицы, потом десятки\n47 + 25: 7+5=12, пишем 2, переносим 1\n4+2+1=7. Ответ: 72',
+    example: '36 + 48 = ?\nОтвет: 84',
+  },
+  sub100: {
+    explain: 'Вычитание — это когда из одной группы забираем часть. Если единиц не хватает — «занимаем» десяток (он становится 10 единиц).',
+    rule:    'Целое − Часть = Другая часть\n53 − 27: 3 < 7, занимаем!\n13−7=6, 4−2=2. Ответ: 26',
+    example: '71 − 34 = ?\nОтвет: 37',
+  },
+  add1000: {
+    explain: 'Всё то же самое, но теперь есть ещё сотни! Складываем справа налево: единицы, десятки, сотни. Переносим лишнее.',
+    rule:    'Единицы → Десятки → Сотни\n347 + 285 = 632',
+    example: '463 + 259 = ?\nОтвет: 722',
+  },
+  sub1000: {
+    explain: 'Вычитаем тоже справа налево. Если цифра маленькая — занимаем у соседа слева. Это как разменять монету!',
+    rule:    'Занимаем 1 десяток = 10 единиц\n1 сотня = 10 десятков\n700 − 358 = 342',
+    example: '845 − 367 = ?\nОтвет: 478',
+  },
+  multiply2_5: {
+    explain: 'Умножение — это быстрое сложение одинаковых чисел. 4 × 3 = это четыре три раза: 3+3+3+3 = 12. Выучи таблицу — и задачи станут лёгкими!',
+    rule:    '× 2: число удваивается\n× 5: всегда 0 или 5 на конце\n3 × 4 = 12, 5 × 6 = 30',
+    example: '4 × 5 = ?\nОтвет: 20\n(5+5+5+5 = 20)',
+  },
+  multiply6_9: {
+    explain: 'Эти числа чуть сложнее, но есть секрет: умножение можно менять местами! 7 × 8 = 8 × 7. Выбирай тот порядок, который легче.',
+    rule:    '6×7=42, 6×8=48, 6×9=54\n7×8=56, 7×9=63\n8×9=72 — запомни их!',
+    example: '7 × 8 = ?\nОтвет: 56\n(запомни: 56 = 7 × 8)',
+  },
+  divide_easy: {
+    explain: 'Деление — это когда делим поровну. 12 конфет на 3 ребёнка — каждому по 4. Деление и умножение — друзья! Если знаешь таблицу умножения — деление легко.',
+    rule:    'a ÷ b = ? → думай: b × ? = a\n15 ÷ 3 = 5 (потому что 3×5=15)',
+    example: '20 ÷ 4 = ?\nОтвет: 5\n(4 × 5 = 20)',
+  },
+  divide_hard: {
+    explain: 'Используй таблицу умножения как подсказку. 56 ÷ 7 = ? — вспоминаем: 7 × 8 = 56. Значит ответ 8!',
+    rule:    'a ÷ b = ? → вспомни таблицу умножения\n63 ÷ 9 = 7 (потому что 9×7=63)',
+    example: '48 ÷ 6 = ?\nОтвет: 8\n(6 × 8 = 48)',
+  },
+  compare: {
+    explain: 'Сравниваем числа слева направо по разрядам. Сначала смотрим на сотни, потом на десятки, потом на единицы. Больше цифр — больше число!',
+    rule:    '> больше   < меньше   = равно\n375 > 357 (десятки: 7 > 5)\n100 < 200',
+    example: '482 ___ 428 = ?\nОтвет: > (больше)\n(десятки: 8 > 2)',
+  },
+  ordinal: {
+    explain: 'Числа идут по порядку — каждое следующее на 1 больше. Если в ряду есть пропуск — найди соседей и прибавь 1 к предыдущему.',
+    rule:    'Каждое число = предыдущее + 1\n10, 11, ?, 13 → пропущено 12',
+    example: '23, 24, ?, 26 = ?\nОтвет: 25',
+  },
+  even_odd: {
+    explain: 'Чётные числа делятся на 2 без остатка. Нечётные — нет. Смотри на последнюю цифру: 0,2,4,6,8 — чётное, 1,3,5,7,9 — нечётное!',
+    rule:    'Чётные: 2, 4, 6, 8, 10, 12...\nНечётные: 1, 3, 5, 7, 9, 11...',
+    example: '38 — чётное или нет?\nОтвет: чётное (38 ÷ 2 = 19)',
+  },
+  round: {
+    explain: 'Округляем до десятков — смотрим на цифру единиц. Если 1,2,3,4 — убираем и пишем 0. Если 5,6,7,8,9 — прибавляем 10 и пишем 0.',
+    rule:    '0–4 → вниз (единицы = 0)\n5–9 → вверх (+10, единицы = 0)\n43 → 40,  47 → 50',
+    example: '64 ≈ ?\nОтвет: 60 (4 < 5 → вниз)',
+  },
+  perimeter: {
+    explain: 'Периметр — это длина забора вокруг огорода. Обходишь фигуру по краям и складываешь все стороны. У прямоугольника две длины и две ширины.',
+    rule:    'P = длина + ширина + длина + ширина\nP = 2 × (длина + ширина)',
+    example: 'Прямоугольник 5 × 3 см\nP = 2 × (5+3) = 2 × 8 = 16 см',
+  },
+  area: {
+    explain: 'Площадь — сколько квадратиков 1×1 помещается внутри. Представь клеточки в тетради! Длина × ширина = количество клеток.',
+    rule:    'S = длина × ширина\nИзмеряется в см², м²',
+    example: 'Прямоугольник 4 × 6 см\nS = 4 × 6 = 24 см²',
+  },
+  fraction_half: {
+    explain: 'Доля — часть целого. Если пиццу разрезать на 2 равные части — каждая часть ½. На 4 части — каждая ¼. Найти долю = разделить на количество частей.',
+    rule:    '½ от числа = число ÷ 2\n¼ от числа = число ÷ 4\n⅓ от числа = число ÷ 3',
+    example: '¼ от 20 = ?\nОтвет: 5\n(20 ÷ 4 = 5)',
+  },
+  time: {
+    explain: 'Большая стрелка — минуты, маленькая — часы. В одном часе 60 минут. Чтобы прибавить время — складываем минуты, и если больше 60 — переходим к следующему часу.',
+    rule:    '1 час = 60 минут\n1 минута = 60 секунд\n3:45 + 20 мин = 4:05',
+    example: 'Сейчас 2:40. Через 30 минут?\nОтвет: 3:10\n(40 + 30 = 70 мин = 1 ч 10 мин)',
+  },
+  money: {
+    explain: 'Цена × количество = итого. Это умножение в жизни! Если хватает денег — из суммы вычитаем стоимость покупки, остаток — сдача.',
+    rule:    'Итого = цена × количество\nСдача = было − потратил',
+    example: 'Карандаш 15 руб., купили 4 шт.\n15 × 4 = 60 руб.',
+  },
+  word_add: {
+    explain: 'В задаче ищи слова-подсказки: «стало», «всего», «вместе», «положили ещё» — это сложение! Читай внимательно, рисуй схему если сложно.',
+    rule:    'Часть + Часть = Целое\n«Всего», «стало», «вместе» → +',
+    example: 'В вазе 7 роз и 5 тюльпанов.\nСколько цветов всего?\n7 + 5 = 12 цветков',
+  },
+  word_mul: {
+    explain: 'Слова «по», «каждый», «в каждом», «одинаковое количество» — знак умножения! Нарисуй группы и посчитай.',
+    rule:    'Групп × размер группы = всего\n«По столько-то» → ×',
+    example: '4 коробки, в каждой 6 мячей.\nСколько мячей всего?\n4 × 6 = 24 мяча',
+  },
+};
+
 // ══ Статические вопросы (для сложных тем) ══
 const staticQ = {
   trig: [
@@ -269,8 +373,9 @@ let session = { questions: [], index: 0, score: 0, answered: false };
 document.querySelectorAll('.subject-card:not(.soon)').forEach(card => {
   card.addEventListener('click', () => {
     currentSubject = card.dataset.subject;
-    document.getElementById('gradeScreenSubject').textContent =
-      currentSubject === 'math' ? 'Математика' : 'Физика';
+    const subjectEl = document.getElementById('gradeScreenSubject');
+    subjectEl.textContent = currentSubject === 'math' ? 'Математика' : 'Физика';
+    window.i18n?.el(subjectEl);
     buildGradeGroupScreen();
     showScreen('screenGradeGroup');
   });
@@ -298,6 +403,7 @@ function buildGradeGroupScreen() {
     });
     grid.appendChild(card);
   });
+  window.i18n?.el(grid);
 }
 
 // ══ Экран выбора темы ══
@@ -317,10 +423,37 @@ function buildTopicsScreen() {
       <span class="topic-count">${t.info || ''}</span>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
     `;
-    item.addEventListener('click', () => { currentTopic = t; startSession(); });
+    item.addEventListener('click', () => { currentTopic = t; showTheory(t); });
     list.appendChild(item);
   });
+  window.i18n?.el(list);
+  window.i18n?.el(document.getElementById('topicsTitle'));
 }
+
+// ══ Теория ══
+function showTheory(topic) {
+  const data = theoryData[topic.id];
+  document.getElementById('theoryTitle').textContent   = topic.name;
+  document.getElementById('theoryIcon').textContent    = topic.icon;
+
+  if (data) {
+    document.getElementById('theoryExplain').textContent  = data.explain;
+    document.getElementById('theoryRule').textContent     = data.rule;
+    document.getElementById('theoryExample').textContent  = data.example;
+    document.querySelector('.theory-rule-box').style.display    = '';
+    document.querySelector('.theory-example-box').style.display = '';
+  } else {
+    document.getElementById('theoryExplain').textContent = '';
+    document.querySelector('.theory-rule-box').style.display    = 'none';
+    document.querySelector('.theory-example-box').style.display = 'none';
+  }
+
+  showScreen('screenTheory');
+  window.i18n?.el(document.getElementById('screenTheory'));
+}
+
+document.getElementById('btnBackTheory').addEventListener('click', () => showScreen('screenTopics'));
+document.getElementById('btnStartFromTheory').addEventListener('click', startSession);
 
 // ══ Сессия ══
 function startSession() {
@@ -329,7 +462,9 @@ function startSession() {
   session.score     = 0;
   session.answered  = false;
 
-  document.getElementById('exerciseTopicLabel').textContent = currentTopic.name;
+  const topicLabelEl = document.getElementById('exerciseTopicLabel');
+  topicLabelEl.textContent = currentTopic.name;
+  window.i18n?.el(topicLabelEl);
   document.getElementById('exerciseQuestionMode').style.display = 'flex';
   document.getElementById('exerciseResultMode').style.display   = 'none';
   showScreen('screenExercise');
@@ -355,6 +490,7 @@ function renderQuestion() {
     btn.addEventListener('click', () => handleAnswer(ans, btn, q));
     opts.appendChild(btn);
   });
+  window.i18n?.el(document.getElementById('exerciseQuestionMode'));
 }
 
 function handleAnswer(ans, btn, q) {
@@ -376,6 +512,7 @@ function handleAnswer(ans, btn, q) {
   document.getElementById('exerciseScore').textContent       = `★ ${session.score}`;
   document.getElementById('btnNextQuestion').style.display   = 'block';
   document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+  window.i18n?.el(document.getElementById('exerciseHint'));
 }
 
 function nextQuestion() {
@@ -394,4 +531,5 @@ function showResult() {
   document.getElementById('resultScoreBig').textContent = `${session.score} / ${QUESTIONS_PER_SESSION}`;
   document.getElementById('resultPct').textContent      = `${pct}%`;
   document.getElementById('exerciseResultMode').style.display = 'flex';
+  window.i18n?.el(document.getElementById('exerciseResultMode'));
 }
