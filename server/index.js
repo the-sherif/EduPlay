@@ -16,7 +16,7 @@ app.use('/api/sessions', require('./routes/sessions'));
 // ── Раздача фронтенда ─────────────────────────────────────────
 const www = path.join(__dirname, '../www');
 app.use(express.static(www));
-app.get('*', (_, res) => res.sendFile(path.join(www, 'index.html')));
+app.get('/{*splat}', (_, res) => res.sendFile(path.join(www, 'index.html')));
 
 // ── Запуск ─────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
