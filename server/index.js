@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const cors    = require('cors');
 const path    = require('path');
+const pool    = require('./db');
 
 const app = express();
 
@@ -17,6 +18,15 @@ app.use('/api/sessions', require('./routes/sessions'));
 const www = path.join(__dirname, '../www');
 app.use(express.static(www));
 app.get('/{*splat}', (_, res) => res.sendFile(path.join(www, 'index.html')));
+
+// ── Очистка устаревших токенов сброса пароля (раз в час) ──────
+setInterval(async () => {
+  try {
+    await pool.query('DELETE FROM password_reset_tokens WHERE expires_at < NOW() OR used = TRUE');
+  } catch (e) {
+    console.error('Token cleanup error:', e);
+  }
+}, 60 * 60 * 1000);
 
 // ── Запуск ─────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;

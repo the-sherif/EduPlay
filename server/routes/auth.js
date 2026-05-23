@@ -9,6 +9,32 @@ const requireAuth = require('../middleware/auth');
 
 const sign = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
 
+// ── Rate limiting (in-memory, 10 попыток / 15 минут на IP) ──
+const loginAttempts = new Map();
+const RATE_WINDOW   = 15 * 60 * 1000;
+const RATE_MAX      = 10;
+
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, times] of loginAttempts) {
+    const fresh = times.filter(t => now - t < RATE_WINDOW);
+    if (fresh.length === 0) loginAttempts.delete(ip);
+    else loginAttempts.set(ip, fresh);
+  }
+}, RATE_WINDOW);
+
+function rateLimit(req, res, next) {
+  const ip  = req.ip || req.socket.remoteAddress;
+  const now = Date.now();
+  const times = (loginAttempts.get(ip) || []).filter(t => now - t < RATE_WINDOW);
+  if (times.length >= RATE_MAX) {
+    return res.status(429).json({ error: 'Слишком много попыток. Попробуй через 15 минут.' });
+  }
+  times.push(now);
+  loginAttempts.set(ip, times);
+  next();
+}
+
 // ── Регистрация ──────────────────────────────────────────────
 router.post('/register', async (req, res) => {
   const { name, email, password, ageGroup, gender } = req.body;
@@ -30,7 +56,7 @@ router.post('/register', async (req, res) => {
 });
 
 // ── Вход ─────────────────────────────────────────────────────
-router.post('/login', async (req, res) => {
+router.post('/login', rateLimit, async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) return res.status(400).json({ error: 'Заполни все поля' });
 
@@ -63,7 +89,7 @@ router.get('/me', requireAuth, async (req, res) => {
 });
 
 // ── Восстановление пароля ─────────────────────────────────────
-router.post('/forgot-password', async (req, res) => {
+router.post('/forgot-password', rateLimit, async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: 'Введи email' });
 

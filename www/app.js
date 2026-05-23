@@ -82,7 +82,7 @@ function setCurrentUser(user) {
 }
 
 // ══ Навигация ══
-const GAME_SCREENS = ['screenGrades', 'screenTopics', 'screenTheory', 'screenExercise'];
+const GAME_SCREENS = ['screenGradeGroup', 'screenTopics', 'screenTheory', 'screenExercise'];
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -130,6 +130,7 @@ async function initAuth() {
     setCurrentUser(user);
     showScreen('screenHome');
     window.loadUserStats?.();
+    window.loadSessionHistory?.();
   } catch {
     localStorage.removeItem('eduToken');
     showScreen('screenLogin');
@@ -155,6 +156,7 @@ document.getElementById('btnLogin').addEventListener('click', async () => {
     setCurrentUser(user);
     showScreen('screenHome');
     window.loadUserStats?.();
+    window.loadSessionHistory?.();
   } catch (e) {
     setError('loginError', e.message);
     setLoading(btn, false);

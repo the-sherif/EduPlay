@@ -753,6 +753,17 @@ html, body {
 
 /* ══ Предметы ══ */
 .subjects-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+.sessions-section { display: flex; flex-direction: column; gap: 0.6rem; }
+.sessions-title { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); letter-spacing: 0.04em; text-transform: uppercase; }
+.session-item {
+  display: flex; align-items: center; gap: 0.75rem;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 1rem; padding: 0.65rem 0.9rem;
+}
+.session-topic { flex: 1; font-size: 0.85rem; font-weight: 600; color: var(--text); }
+.session-score { font-size: 0.8rem; font-weight: 700; color: var(--accent); white-space: nowrap; }
+.session-date  { font-size: 0.7rem; color: var(--text-muted); white-space: nowrap; }
 .subject-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -804,10 +815,17 @@ html, body {
   box-shadow: 0 2px 8px var(--shadow);
 }
 .grade-card:active { transform: scale(0.97); }
-.grade-card:hover  { background: var(--surface-hover); border-color: var(--border-hover); }
+.grade-card:not(.soon):hover { background: var(--surface-hover); border-color: var(--border-hover); }
+.grade-card.soon { opacity: 0.5; cursor: default; position: relative; }
 .grade-icon  { font-size: 2.2rem; line-height: 1; }
 .grade-label { font-size: 0.95rem; font-weight: 700; color: var(--text); }
 .grade-desc  { font-size: 0.7rem; color: var(--text-muted); }
+.grade-soon {
+  position: absolute; top: 0.5rem; right: 0.6rem;
+  font-size: 0.55rem; font-weight: 700; letter-spacing: 0.05em;
+  background: var(--surface-hover); color: var(--accent);
+  padding: 0.15rem 0.45rem; border-radius: 1rem;
+}
 
 .topics-list {
   flex: 1; overflow-y: auto;

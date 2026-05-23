@@ -21,6 +21,8 @@ const gradeGroups = [
   { id: 'g4', label: '10–11 класс', icon: '🎓', desc: 'Высшая математика' },
 ];
 
+const ACTIVE_GRADE_GROUPS = new Set(['g1']);
+
 // ══ Темы по математике ══
 const mathTopics = {
   g1: [
@@ -532,14 +534,22 @@ function buildGradeGroupScreen() {
   const grid = document.getElementById('gradeGroupGrid');
   grid.innerHTML = '';
   gradeGroups.forEach(g => {
+    const soon = !ACTIVE_GRADE_GROUPS.has(g.id);
     const card = document.createElement('div');
-    card.className = 'grade-card';
-    card.innerHTML = `<span class="grade-icon">${g.icon}</span><span class="grade-label">${g.label}</span><span class="grade-desc">${g.desc}</span>`;
-    card.addEventListener('click', () => {
-      currentGroupId = g.id;
-      buildTopicsScreen();
-      showScreen('screenTopics');
-    });
+    card.className = 'grade-card' + (soon ? ' soon' : '');
+    card.innerHTML = `
+      <span class="grade-icon">${g.icon}</span>
+      <span class="grade-label">${g.label}</span>
+      <span class="grade-desc">${g.desc}</span>
+      ${soon ? '<span class="grade-soon">Скоро</span>' : ''}
+    `;
+    if (!soon) {
+      card.addEventListener('click', () => {
+        currentGroupId = g.id;
+        buildTopicsScreen();
+        showScreen('screenTopics');
+      });
+    }
     grid.appendChild(card);
   });
   window.i18n?.el(grid);
