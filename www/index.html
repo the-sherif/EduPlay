@@ -214,7 +214,28 @@
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
     <div class="orb orb-3"></div>
-    <div class="theory-wrap">
+
+    <!-- Фаза 1: Хук-вопрос -->
+    <div class="theory-hook" id="theoryHook">
+      <button class="btn-icon theory-hook-back" id="btnBackTheoryHook">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="theory-hook-badge">
+        <span id="theoryHookIcon"></span>
+        <span id="theoryHookTitle"></span>
+      </div>
+      <div class="theory-hook-question" id="theoryHookQuestion"></div>
+      <div class="theory-hook-options" id="theoryHookOptions"></div>
+    </div>
+
+    <!-- Фаза 2: Flash-реакция -->
+    <div class="theory-flash" id="theoryFlash">
+      <div class="theory-flash-text" id="theoryFlashText"></div>
+      <div class="theory-flash-hint">Нажми, чтобы продолжить</div>
+    </div>
+
+    <!-- Фаза 3: Теория -->
+    <div class="theory-wrap" id="theoryContent" style="display:none">
       <div class="nav-top-bar">
         <button class="btn-icon" id="btnBackTheory">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
