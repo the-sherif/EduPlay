@@ -1000,21 +1000,35 @@ html, body {
   font-size: 0.75rem; color: var(--text-muted); opacity: 0.6;
 }
 
-/* ── Теория: контент ── */
+/* ── Теория: контент / слайды ── */
 .theory-wrap {
   display: flex; flex-direction: column;
   height: 100%; padding: 1.25rem 1.25rem 2rem;
   overflow-y: auto; gap: 1rem;
   position: relative; z-index: 1;
 }
+.theory-dots {
+  display: flex; gap: 0.4rem; align-items: center;
+}
+.theory-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--border);
+  transition: background 0.25s, transform 0.25s;
+}
+.theory-dot.active {
+  background: var(--accent);
+  transform: scale(1.25);
+}
+.theory-slide { flex: 1; }
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(18px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.theory-slide.slide-in { animation: slideIn 0.3s ease forwards; }
 .theory-icon {
   font-size: 3.5rem; text-align: center;
   margin: 0.25rem 0;
   filter: drop-shadow(0 4px 12px rgba(0,0,0,0.15));
-}
-.theory-explain {
-  font-size: 0.95rem; line-height: 1.6;
-  color: var(--text); margin: 0;
 }
 .theory-rule-box {
   background: linear-gradient(135deg, var(--accent), var(--accent2));
@@ -1030,6 +1044,16 @@ html, body {
   font-size: 1.05rem; font-weight: 700; color: #fff;
   line-height: 1.5;
 }
+.rule-line {
+  display: flex; align-items: flex-start; gap: 0.55rem;
+  margin-bottom: 0.45rem;
+}
+.rule-line:last-child { margin-bottom: 0; }
+.rule-check {
+  flex-shrink: 0;
+  font-size: 1rem; line-height: 1.5;
+  opacity: 0.85;
+}
 .theory-example-box {
   background: var(--surface);
   border: 1.5px solid var(--border);
@@ -1038,7 +1062,29 @@ html, body {
 .theory-example-label { color: var(--text-muted); }
 .theory-example {
   font-size: 1rem; font-weight: 600; color: var(--text);
-  line-height: 1.6; white-space: pre-line;
+  line-height: 1.6;
+}
+.example-line {
+  padding: 0.1rem 0;
+}
+.example-answer {
+  margin-top: 0.5rem;
+  color: var(--accent);
+  font-size: 1.1rem; font-weight: 800;
+  padding-top: 0.35rem;
+  border-top: 1px solid var(--border);
+}
+.theory-explain {
+  font-size: 1rem; color: var(--text); line-height: 1.65;
+}
+.theory-p {
+  margin: 0 0 0.75rem;
+}
+.theory-p:last-child { margin-bottom: 0; }
+.theory-term {
+  color: var(--accent);
+  font-weight: 800;
+  letter-spacing: 0.01em;
 }
 
 /* ── Фоновые частицы ── */

@@ -234,28 +234,46 @@
       <div class="theory-flash-hint">Нажми, чтобы продолжить</div>
     </div>
 
-    <!-- Фаза 3: Теория -->
+    <!-- Фаза 3: Теория (слайды) -->
     <div class="theory-wrap" id="theoryContent" style="display:none">
       <div class="nav-top-bar">
         <button class="btn-icon" id="btnBackTheory">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
-        <div>
+        <div style="flex:1">
           <div class="nav-title" id="theoryTitle"></div>
-          <div class="nav-sub">Теория</div>
+          <div class="nav-sub" id="theorySlideLabel">Объяснение</div>
+        </div>
+        <div class="theory-dots" id="theoryDots">
+          <span class="theory-dot active"></span>
+          <span class="theory-dot"></span>
+          <span class="theory-dot"></span>
         </div>
       </div>
-      <div class="theory-icon" id="theoryIcon"></div>
-      <p class="theory-explain" id="theoryExplain"></p>
-      <div class="theory-rule-box">
-        <div class="theory-rule-label">Правило</div>
-        <div class="theory-rule" id="theoryRule"></div>
+
+      <!-- Слайд 1: Объяснение -->
+      <div class="theory-slide" id="theorySlideExplain">
+        <div class="theory-icon" id="theoryIcon"></div>
+        <p class="theory-explain" id="theoryExplain"></p>
       </div>
-      <div class="theory-example-box">
-        <div class="theory-example-label">Пример</div>
-        <div class="theory-example" id="theoryExample"></div>
+
+      <!-- Слайд 2: Правило -->
+      <div class="theory-slide" id="theorySlideRule" style="display:none">
+        <div class="theory-rule-box">
+          <div class="theory-rule-label">Правило</div>
+          <div class="theory-rule" id="theoryRule"></div>
+        </div>
       </div>
-      <button class="btn-primary" id="btnStartFromTheory">Понятно, начинаем! →</button>
+
+      <!-- Слайд 3: Пример -->
+      <div class="theory-slide" id="theorySlideExample" style="display:none">
+        <div class="theory-example-box">
+          <div class="theory-example-label">Пример</div>
+          <div class="theory-example" id="theoryExample"></div>
+        </div>
+      </div>
+
+      <button class="btn-primary" id="btnStartFromTheory">Далее →</button>
     </div>
   </div>
 

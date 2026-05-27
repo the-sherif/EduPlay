@@ -710,7 +710,11 @@ function buildTopicsScreen() {
 }
 
 // ══ Теория ══
-let flashTimer = null;
+let flashTimer   = null;
+let currentSlide = 0;
+
+const SLIDE_IDS    = ['theorySlideExplain', 'theorySlideRule', 'theorySlideExample'];
+const SLIDE_LABELS = ['Объяснение', 'Правило', 'Пример'];
 
 function showTheory(topic) {
   const data      = theoryData[topic.id];
@@ -767,31 +771,81 @@ function handleHookAnswer(reaction, data, topic) {
   flashTimer = setTimeout(proceed, 3000);
 }
 
+function fmtExplain(text) {
+  return text.split('\n\n').map(para => {
+    const html = para.split('\n').map(line =>
+      line.replace(/[А-ЯЁ]{3,}/g, w => `<span class="theory-term">${w}</span>`)
+    ).join('<br>');
+    return `<p class="theory-p">${html}</p>`;
+  }).join('');
+}
+
+function fmtRule(text) {
+  return text.split('\n').filter(l => l.trim()).map(line =>
+    `<div class="rule-line"><span class="rule-check">✓</span><span>${line}</span></div>`
+  ).join('');
+}
+
+function fmtExample(text) {
+  return text.split('\n').map(line => {
+    const isAnswer = /^Ответ/i.test(line.trim());
+    return `<div class="example-line${isAnswer ? ' example-answer' : ''}">${line}</div>`;
+  }).join('');
+}
+
 function showTheoryContent(data, topic) {
+  currentSlide = 0;
   const contentEl = document.getElementById('theoryContent');
   contentEl.style.display = '';
 
-  document.getElementById('theoryTitle').textContent = topic.name;
-  document.getElementById('theoryIcon').textContent  = topic.icon;
+  document.getElementById('theoryTitle').textContent  = topic.name;
+  document.getElementById('theoryIcon').textContent   = topic.icon;
+  document.getElementById('theoryExplain').innerHTML  = data ? fmtExplain(data.explain) : '';
+  document.getElementById('theoryRule').innerHTML     = data ? fmtRule(data.rule)        : '';
+  document.getElementById('theoryExample').innerHTML  = data ? fmtExample(data.example)  : '';
 
-  if (data) {
-    document.getElementById('theoryExplain').textContent = data.explain;
-    document.getElementById('theoryRule').textContent    = data.rule;
-    document.getElementById('theoryExample').textContent = data.example;
-    document.querySelector('.theory-rule-box').style.display    = '';
-    document.querySelector('.theory-example-box').style.display = '';
-  } else {
-    document.getElementById('theoryExplain').textContent = '';
-    document.querySelector('.theory-rule-box').style.display    = 'none';
-    document.querySelector('.theory-example-box').style.display = 'none';
-  }
-
+  renderTheorySlide(0);
   window.i18n?.el(contentEl);
 }
 
-document.getElementById('btnBackTheory').addEventListener('click', () => showScreen('screenTopics'));
+function renderTheorySlide(index) {
+  SLIDE_IDS.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.display = i === index ? '' : 'none';
+    if (i === index) {
+      el.classList.remove('slide-in');
+      requestAnimationFrame(() => el.classList.add('slide-in'));
+    }
+  });
+
+  document.getElementById('theorySlideLabel').textContent = SLIDE_LABELS[index];
+
+  document.querySelectorAll('.theory-dot').forEach((d, i) =>
+    d.classList.toggle('active', i === index)
+  );
+
+  const btn = document.getElementById('btnStartFromTheory');
+  btn.textContent = index === SLIDE_IDS.length - 1 ? 'Понятно, начинаем! →' : 'Далее →';
+}
+
+document.getElementById('btnBackTheory').addEventListener('click', () => {
+  if (currentSlide > 0) {
+    currentSlide--;
+    renderTheorySlide(currentSlide);
+  } else {
+    showScreen('screenTopics');
+  }
+});
 document.getElementById('btnBackTheoryHook').addEventListener('click', () => showScreen('screenTopics'));
-document.getElementById('btnStartFromTheory').addEventListener('click', startSession);
+document.getElementById('btnStartFromTheory').addEventListener('click', () => {
+  if (currentSlide < SLIDE_IDS.length - 1) {
+    currentSlide++;
+    renderTheorySlide(currentSlide);
+  } else {
+    startSession();
+  }
+});
 
 // ══ Сессия ══
 function startSession() {
