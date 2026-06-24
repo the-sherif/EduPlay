@@ -468,6 +468,8 @@ document.getElementById('btnLogout').addEventListener('click', () => {
   profileModal.classList.remove('active');
   localStorage.removeItem('eduToken');
   currentUser = null;
+  document.getElementById('btnLogin').textContent = document.getElementById('btnLogin').dataset.label;
+  document.getElementById('btnLogin').disabled = false;
   showScreen('screenLogin');
 });
 
@@ -498,10 +500,12 @@ document.getElementById('btnConfirmDelete').addEventListener('click', async () =
   btn.disabled = true; btn.textContent = tx('Удаляем...');
   try {
     await api('/api/auth/account', { method: 'DELETE', body: { password: pass } });
-    localStorage.removeItem('eduToken');
-    localStorage.removeItem('eduTheme');
+    ['eduToken','eduTheme','eduStyle','eduOnboarded'].forEach(k => localStorage.removeItem(k));
+    document.body.className = '';
     currentUser = null;
     deleteModal.classList.remove('active');
+    document.getElementById('btnLogin').textContent = document.getElementById('btnLogin').dataset.label;
+    document.getElementById('btnLogin').disabled = false;
     showScreen('screenLogin');
   } catch (e) {
     errEl.textContent = e.message;
