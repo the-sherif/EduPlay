@@ -69,6 +69,7 @@ router.post('/register', async (req, res) => {
       expiresAt: Date.now() + 15 * 60 * 1000,
     });
 
+    console.log(`[VERIFY CODE] ${email} → ${code}`);
     try {
       await makeTransporter().sendMail({
         from: `"EduPlay" <${process.env.SMTP_USER}>`,
