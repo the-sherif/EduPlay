@@ -119,6 +119,13 @@ function updateUserUI(user) {
 
 // ══ Инициализация авторизации ══
 async function initAuth() {
+  // DEV bypass: ?dev=home
+  if (new URLSearchParams(location.search).get('dev') === 'home') {
+    setCurrentUser({ name: 'Dev User', email: 'dev@eduplay.local', total_score: 420, sessions_count: 7 });
+    hideLoader();
+    showScreen('screenHome');
+    return;
+  }
   const token = localStorage.getItem('eduToken');
   if (!token) {
     hideLoader();
@@ -154,42 +161,23 @@ document.getElementById('btnLogin').addEventListener('click', async () => {
     const { token, user } = await api('/api/auth/login', { method: 'POST', body: { email, password: pass } });
     localStorage.setItem('eduToken', token);
     setCurrentUser(user);
-    showScreen('screenHome');
-    window.loadUserStats?.();
-    window.loadSessionHistory?.();
+    if (!localStorage.getItem('eduOnboarded')) {
+      buildCarousel();
+      showScreen('screenOnboarding');
+    } else {
+      showScreen('screenHome');
+      window.loadUserStats?.();
+      window.loadSessionHistory?.();
+    }
   } catch (e) {
     setError('loginError', e.message);
     setLoading(btn, false);
   }
 });
 
-// ══ Регистрация: выбор возраста и пола ══
-let selectedAge    = null;
-let selectedGender = null;
-
-document.getElementById('ageSelector').addEventListener('click', e => {
-  const btn = e.target.closest('.sel-btn');
-  if (!btn) return;
-  document.querySelectorAll('#ageSelector .sel-btn').forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
-  selectedAge = btn.dataset.age;
-  const genderSection = document.getElementById('genderSelector');
-  const genderLabel   = document.getElementById('genderLabel');
-  const hide = selectedAge === 'adult';
-  genderSection.style.display = hide ? 'none' : 'flex';
-  genderLabel.style.display   = hide ? 'none' : 'block';
-  if (hide) selectedGender = null;
-});
-
-document.getElementById('genderSelector').addEventListener('click', e => {
-  const btn = e.target.closest('.sel-btn');
-  if (!btn) return;
-  document.querySelectorAll('#genderSelector .sel-btn').forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
-  selectedGender = btn.dataset.gender;
-});
-
 // ══ Регистрация ══
+let pendingEmail = null;
+
 document.getElementById('btnRegister').addEventListener('click', async () => {
   const name    = document.getElementById('regName').value.trim();
   const email   = document.getElementById('regEmail').value.trim();
@@ -198,28 +186,167 @@ document.getElementById('btnRegister').addEventListener('click', async () => {
   clearMsg('registerError');
 
   if (!name || !email || !pass || !confirm) { setError('registerError', 'Заполни все поля'); return; }
-  if (pass !== confirm) { setError('registerError', 'Пароли не совпадают'); return; }
-  if (pass.length < 6)  { setError('registerError', 'Пароль минимум 6 символов'); return; }
-  if (!selectedAge)     { setError('registerError', 'Укажи свой возраст'); return; }
-  if (selectedAge !== 'adult' && !selectedGender) { setError('registerError', 'Укажи пол'); return; }
+  if (pass !== confirm)  { setError('registerError', 'Пароли не совпадают'); return; }
+  if (pass.length < 6)   { setError('registerError', 'Пароль минимум 6 символов'); return; }
 
   const btn = document.getElementById('btnRegister');
   setLoading(btn, true);
   try {
-    const { token, user } = await api('/api/auth/register', {
-      method: 'POST',
-      body: { name, email, password: pass, ageGroup: selectedAge, gender: selectedGender },
-    });
-    localStorage.setItem('eduToken', token);
-    setCurrentUser(user);
-    const theme = getTheme(selectedAge, selectedGender);
-    localStorage.setItem('eduTheme', theme);
-    applyTheme(theme);
-    showScreen('screenHome');
+    await api('/api/auth/register', { method: 'POST', body: { name, email, password: pass } });
+    pendingEmail = email;
+    document.getElementById('verifyEmailHint').textContent = `Мы отправили код на ${email}`;
+    document.getElementById('verifyCode').value = '';
+    clearMsg('verifyError');
+    showScreen('screenVerify');
   } catch (e) {
     setError('registerError', e.message);
     setLoading(btn, false);
   }
+});
+
+// ══ Верификация email ══
+document.getElementById('btnVerify').addEventListener('click', async () => {
+  const code = document.getElementById('verifyCode').value.trim();
+  clearMsg('verifyError');
+  if (!code || code.length < 4) { setError('verifyError', 'Введи код из письма'); return; }
+  if (!pendingEmail) { setError('verifyError', 'Сессия истекла, зарегистрируйся снова'); return; }
+
+  const btn = document.getElementById('btnVerify');
+  setLoading(btn, true);
+  try {
+    const { token, user } = await api('/api/auth/verify-email', {
+      method: 'POST', body: { email: pendingEmail, code },
+    });
+    localStorage.setItem('eduToken', token);
+    setCurrentUser(user);
+    pendingEmail = null;
+    if (!localStorage.getItem('eduOnboarded')) {
+      buildCarousel();
+      showScreen('screenOnboarding');
+    } else {
+      showScreen('screenHome');
+      window.loadUserStats?.();
+      window.loadSessionHistory?.();
+    }
+  } catch (e) {
+    setError('verifyError', e.message);
+    setLoading(btn, false);
+  }
+});
+
+document.getElementById('backFromVerify').addEventListener('click', () => showScreen('screenRegister'));
+
+document.getElementById('btnResendCode').addEventListener('click', async () => {
+  if (!pendingEmail) return;
+  const nameVal  = document.getElementById('regName').value.trim();
+  const passVal  = document.getElementById('regPassword').value;
+  try {
+    await api('/api/auth/register', { method: 'POST', body: { name: nameVal, email: pendingEmail, password: passVal } });
+    setError('verifyError', 'Новый код отправлен');
+  } catch (e) {
+    setError('verifyError', e.message);
+  }
+});
+
+// ══ Онбординг: карусель стилей ══
+const STYLE_DEFS = [
+  { id:'game',      name:'Game',      desc:'Тёмный и неоновый',     bg:'#0c0c10', accent:'#39ff8a', accent2:'#00d4ff', cardBg:'rgba(57,255,138,0.08)', text:'#fff' },
+  { id:'editorial', name:'Editorial', desc:'Чистый и смелый',       bg:'#f7f5f0', accent:'#1a1a2e', accent2:'#4f46e5', cardBg:'rgba(255,255,255,0.9)', text:'#1a1a2e' },
+  { id:'soft',      name:'Soft',      desc:'Тёплый и мягкий',       bg:'#fff8f0', accent:'#ff6b6b', accent2:'#d946ef', cardBg:'rgba(255,255,255,0.85)', text:'#1a0a00' },
+  { id:'y2k',       name:'Y2K',       desc:'Голографический',       bg:'#08000f', accent:'#ff9de2', accent2:'#9de2ff', cardBg:'rgba(255,157,226,0.08)', text:'#f0e8ff' },
+  { id:'brutal',    name:'Brutal',    desc:'Контрастный и резкий',  bg:'#f2f0e8', accent:'#e63946', accent2:'#1a1a1a', cardBg:'#fff', text:'#1a1a1a' },
+  { id:'aurora',    name:'Aurora',    desc:'Тёмный люкс',           bg:'#010208', accent:'#00e5a0', accent2:'#a855f7', cardBg:'rgba(0,229,160,0.06)', text:'rgba(255,255,255,0.9)' },
+];
+
+let carouselIndex = 0;
+
+function buildCarousel() {
+  const track  = document.getElementById('carouselTrack');
+  const dotsEl = document.getElementById('carouselDots');
+  track.innerHTML  = '';
+  dotsEl.innerHTML = '';
+  carouselIndex    = 0;
+
+  STYLE_DEFS.forEach((s, i) => {
+    const card = document.createElement('div');
+    card.className = 'style-card' + (i === 0 ? ' active' : '');
+    card.style.cssText = `background:${s.bg};color:${s.text}`;
+    card.innerHTML = `
+      <div class="style-card-inner">
+        <div class="style-card-preview">
+          <div class="sc-header">
+            <div class="sc-avatar" style="background:linear-gradient(135deg,${s.accent},${s.accent2})"></div>
+            <div class="sc-lines">
+              <div class="sc-line long"  style="background:${s.text}"></div>
+              <div class="sc-line short" style="background:${s.text}"></div>
+            </div>
+          </div>
+          <div class="sc-cards">
+            <div class="sc-card" style="background:${s.cardBg};border:1.5px solid ${s.accent}30"></div>
+            <div class="sc-card" style="background:${s.cardBg};border:1.5px solid ${s.accent}30"></div>
+            <div class="sc-card" style="background:${s.cardBg};border:1.5px solid ${s.accent}30"></div>
+            <div class="sc-card" style="background:${s.cardBg};border:1.5px solid ${s.accent}30"></div>
+          </div>
+          <div class="sc-bar" style="background:linear-gradient(90deg,${s.accent},${s.accent2});box-shadow:0 0 10px ${s.accent}55"></div>
+        </div>
+        <div class="style-card-info" style="color:${s.text}">
+          <div class="style-card-name">${s.name}</div>
+          <div class="style-card-desc">${s.desc}</div>
+        </div>
+      </div>`;
+    card.addEventListener('click', () => goToSlide(i));
+    track.appendChild(card);
+
+    const dot = document.createElement('button');
+    dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+    dot.addEventListener('click', () => goToSlide(i));
+    dotsEl.appendChild(dot);
+  });
+
+  updateCarousel();
+  initCarouselSwipe();
+}
+
+function goToSlide(i) {
+  carouselIndex = Math.max(0, Math.min(i, STYLE_DEFS.length - 1));
+  updateCarousel();
+}
+
+function updateCarousel() {
+  const cards = document.querySelectorAll('.style-card');
+  const dots  = document.querySelectorAll('.carousel-dot');
+  cards.forEach((c, i) => c.classList.toggle('active', i === carouselIndex));
+  dots.forEach((d, i)  => d.classList.toggle('active', i === carouselIndex));
+
+  const track     = document.getElementById('carouselTrack');
+  const vp        = document.querySelector('.carousel-viewport');
+  if (!track || !vp) return;
+  const cardW     = 210 + 14;
+  const vpCenter  = vp.offsetWidth / 2;
+  const offset    = vpCenter - 80 - carouselIndex * cardW - 105;
+  track.style.transform = `translateX(${offset}px)`;
+}
+
+function initCarouselSwipe() {
+  const vp = document.querySelector('.carousel-viewport');
+  if (!vp) return;
+  let startX = 0;
+  vp.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+  vp.addEventListener('touchend',   e => {
+    const dx = e.changedTouches[0].clientX - startX;
+    if (Math.abs(dx) > 40) goToSlide(carouselIndex + (dx < 0 ? 1 : -1));
+  }, { passive: true });
+}
+
+document.getElementById('btnSelectStyle').addEventListener('click', () => {
+  const style = STYLE_DEFS[carouselIndex];
+  localStorage.setItem('eduStyle',    style.id);
+  localStorage.setItem('eduOnboarded','1');
+  localStorage.setItem('eduTheme',    style.id);
+  applyTheme(style.id);
+  showScreen('screenHome');
+  window.loadUserStats?.();
+  window.loadSessionHistory?.();
 });
 
 // ══ Восстановление пароля ══

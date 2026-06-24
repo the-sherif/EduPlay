@@ -35,18 +35,82 @@ function rateLimit(req, res, next) {
   next();
 }
 
-// ── Регистрация ──────────────────────────────────────────────
+// ── Pending registrations (in-memory) ────────────────────────
+const pendingRegs = new Map();
+setInterval(() => {
+  const now = Date.now();
+  for (const [email, d] of pendingRegs) {
+    if (d.expiresAt < now) pendingRegs.delete(email);
+  }
+}, 10 * 60 * 1000);
+
+function makeTransporter() {
+  return nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: Number(process.env.SMTP_PORT) || 587,
+    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+  });
+}
+
+// ── Регистрация (шаг 1: отправить код) ───────────────────────
 router.post('/register', async (req, res) => {
-  const { name, email, password, ageGroup, gender } = req.body;
+  const { name, email, password } = req.body;
   if (!name || !email || !password) return res.status(400).json({ error: 'Заполни все поля' });
   if (password.length < 6) return res.status(400).json({ error: 'Пароль минимум 6 символов' });
 
   try {
+    const existing = await pool.query('SELECT id FROM users WHERE email=$1', [email]);
+    if (existing.rows[0]) return res.status(409).json({ error: 'Email уже зарегистрирован' });
+
     const hash = await bcrypt.hash(password, 10);
+    const code = String(Math.floor(100000 + Math.random() * 900000));
+    pendingRegs.set(email.toLowerCase(), {
+      name, passwordHash: hash, code,
+      expiresAt: Date.now() + 15 * 60 * 1000,
+    });
+
+    try {
+      await makeTransporter().sendMail({
+        from: `"EduPlay" <${process.env.SMTP_USER}>`,
+        to: email,
+        subject: 'Твой код подтверждения EduPlay',
+        html: `<div style="font-family:sans-serif;max-width:400px;margin:0 auto;padding:32px">
+          <h2 style="margin:0 0 8px">EduPlay 🎮</h2>
+          <p style="color:#666;margin:0 0 24px">Твой код подтверждения:</p>
+          <div style="font-size:48px;font-weight:900;letter-spacing:12px;color:#6366f1;margin:0 0 24px">${code}</div>
+          <p style="color:#999;font-size:13px">Код действителен 15 минут. Если ты не регистрировался — просто проигнорируй письмо.</p>
+        </div>`,
+      });
+    } catch (mailErr) {
+      console.error('Mail error:', mailErr);
+    }
+
+    res.json({ pending: true });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
+// ── Верификация email (шаг 2: подтвердить код) ───────────────
+router.post('/verify-email', async (req, res) => {
+  const { email, code } = req.body;
+  if (!email || !code) return res.status(400).json({ error: 'Неверный запрос' });
+
+  const pending = pendingRegs.get(email.toLowerCase());
+  if (!pending) return res.status(400).json({ error: 'Сессия истекла. Зарегистрируйся снова.' });
+  if (Date.now() > pending.expiresAt) {
+    pendingRegs.delete(email.toLowerCase());
+    return res.status(400).json({ error: 'Код истёк. Зарегистрируйся снова.' });
+  }
+  if (pending.code !== code.trim()) return res.status(400).json({ error: 'Неверный код' });
+
+  try {
     const { rows } = await pool.query(
-      'INSERT INTO users (name, email, password, age_group, gender) VALUES ($1,$2,$3,$4,$5) RETURNING id, name, email, total_score, sessions_count',
-      [name, email, hash, ageGroup || null, gender || null]
+      'INSERT INTO users (name, email, password) VALUES ($1,$2,$3) RETURNING id, name, email, total_score, sessions_count',
+      [pending.name, email.toLowerCase(), pending.passwordHash]
     );
+    pendingRegs.delete(email.toLowerCase());
     res.json({ token: sign(rows[0].id), user: rows[0] });
   } catch (e) {
     if (e.code === '23505') return res.status(409).json({ error: 'Email уже зарегистрирован' });

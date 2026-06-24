@@ -55,36 +55,53 @@
   </div>
 
   <!-- ── Регистрация ── -->
-  <div id="screenRegister" class="screen">
-    <div class="auth-stars s1"></div>
-    <div class="auth-stars s2"></div>
-    <div class="auth-stars s3"></div>
+  <div id="screenRegister" class="screen auth-neutral">
     <div class="auth-card">
       <button class="btn-back" id="backFromRegister">←</button>
       <div class="auth-logo">✨</div>
       <h1 class="auth-title">Регистрация</h1>
-      <p class="auth-sub">Создай аккаунт</p>
+      <p class="auth-sub">Создай аккаунт — это займёт минуту</p>
       <input type="text"     id="regName"     class="input-field" placeholder="Имя" />
       <input type="email"    id="regEmail"    class="input-field" placeholder="Email" />
-      <input type="password" id="regPassword" class="input-field" placeholder="Пароль" />
+      <input type="password" id="regPassword" class="input-field" placeholder="Пароль (минимум 6 символов)" />
       <input type="password" id="regConfirm"  class="input-field" placeholder="Повтори пароль" />
-
-      <span class="selector-label">Возраст</span>
-      <div class="selector-group" id="ageSelector">
-        <button class="sel-btn" data-age="child">7–10 лет 🎒</button>
-        <button class="sel-btn" data-age="teen">11–14 лет 📚</button>
-        <button class="sel-btn" data-age="older">15–17 лет 🎮</button>
-        <button class="sel-btn full" data-age="adult">Я много пожил и всё забыл 😂</button>
-      </div>
-
-      <span class="selector-label" id="genderLabel">Пол</span>
-      <div class="selector-group" id="genderSelector">
-        <button class="sel-btn" data-gender="boy">👦 Мальчик</button>
-        <button class="sel-btn" data-gender="girl">👧 Девочка</button>
-      </div>
-
       <button class="btn-primary" id="btnRegister">Создать аккаунт</button>
       <p class="auth-error" id="registerError"></p>
+    </div>
+  </div>
+
+  <!-- ── Верификация email ── -->
+  <div id="screenVerify" class="screen auth-neutral">
+    <div class="auth-card">
+      <button class="btn-back" id="backFromVerify">←</button>
+      <div class="auth-logo">✉️</div>
+      <h1 class="auth-title">Проверь почту</h1>
+      <p class="auth-sub" id="verifyEmailHint">Мы отправили 6-значный код на твой email</p>
+      <div class="verify-code-wrap">
+        <input type="text" inputmode="numeric" maxlength="6" id="verifyCode"
+          class="verify-code-input" placeholder="000000" autocomplete="one-time-code"/>
+      </div>
+      <button class="btn-primary" id="btnVerify">Подтвердить →</button>
+      <p class="auth-error" id="verifyError"></p>
+      <button class="link-btn" id="btnResendCode">Отправить код повторно</button>
+    </div>
+  </div>
+
+  <!-- ── Онбординг: выбор стиля ── -->
+  <div id="screenOnboarding" class="screen onboarding-screen">
+    <div class="onboarding-wrap">
+      <div class="onboarding-header">
+        <div class="onboarding-tag">Последний шаг ✦</div>
+        <h2 class="onboarding-title">Выбери свой стиль</h2>
+        <p class="onboarding-sub">Можно изменить позже в настройках</p>
+      </div>
+      <div class="carousel-viewport">
+        <div class="carousel-track" id="carouselTrack"></div>
+      </div>
+      <div class="carousel-dots" id="carouselDots"></div>
+      <div class="onboarding-actions">
+        <button class="btn-primary onboarding-select-btn" id="btnSelectStyle">Выбрать этот стиль →</button>
+      </div>
     </div>
   </div>
 
