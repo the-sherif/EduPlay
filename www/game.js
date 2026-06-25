@@ -1,6 +1,21 @@
 'use strict';
 
 const QUESTIONS_PER_SESSION = 10;
+const MAX_STARS = 5;
+const PASS_STARS = 4; // тема считается пройденной от 4 звёзд (8/10)
+
+// Звёзды за результат: floor(верных / 2) → 10→5, 9→4, 8→4, … 5 звёзд только за идеал
+function starsFor(score) {
+  return Math.min(MAX_STARS, Math.floor(score / (QUESTIONS_PER_SESSION / MAX_STARS)));
+}
+function starsHtml(count) {
+  return Array.from({ length: MAX_STARS }, (_, i) =>
+    `<span class="star${i < count ? ' filled' : ''}">${i < count ? '★' : '☆'}</span>`
+  ).join('');
+}
+window.starsFor  = starsFor;
+window.starsHtml = starsHtml;
+window.PASS_STARS = PASS_STARS;
 
 // ══ Группы классов ══
 // Темы с полем ввода вместо вариантов
@@ -620,7 +635,19 @@ function generateSession(topicId) {
   if (staticQ[topicId]) {
     return [...staticQ[topicId]].sort(() => Math.random() - 0.5).slice(0, QUESTIONS_PER_SESSION);
   }
-  return Array.from({ length: QUESTIONS_PER_SESSION }, () => generateQuestion(topicId));
+  // Генерируем уникальные по тексту вопросы, без повторов в рамках сессии
+  const questions = [];
+  const seen = new Set();
+  let tries = 0;
+  while (questions.length < QUESTIONS_PER_SESSION && tries++ < QUESTIONS_PER_SESSION * 30) {
+    const q = generateQuestion(topicId);
+    if (seen.has(q.text)) continue;
+    seen.add(q.text);
+    questions.push(q);
+  }
+  // Если генератор не смог дать достаточно уникальных — добиваем чем есть
+  while (questions.length < QUESTIONS_PER_SESSION) questions.push(generateQuestion(topicId));
+  return questions;
 }
 
 // ══ Состояние ══
@@ -643,20 +670,15 @@ document.querySelectorAll('.subject-card:not(.soon)').forEach(card => {
 
 document.getElementById('btnBackGrade').addEventListener('click', () => showScreen('screenHome'));
 document.getElementById('btnBackTopics').addEventListener('click', () => showScreen('screenGradeGroup'));
-document.getElementById('btnBackExercise').addEventListener('click', () => showScreen('screenTopics'));
+document.getElementById('btnBackExercise').addEventListener('click', () => { buildTopicsScreen(); showScreen('screenTopics'); });
 document.getElementById('btnNextQuestion').addEventListener('click', nextQuestion);
 document.getElementById('btnRetry').addEventListener('click', startSession);
-document.getElementById('btnOtherTopic').addEventListener('click', () => showScreen('screenTopics'));
+document.getElementById('btnOtherTopic').addEventListener('click', () => { buildTopicsScreen(); showScreen('screenTopics'); });
 
-document.getElementById('btnCheckAnswer').addEventListener('click', () => {
-  const q = session.questions[session.index];
-  handleInputAnswer(q);
-});
+document.getElementById('btnCheckAnswer').addEventListener('click', handleInputAnswer);
+document.getElementById('btnCheckChoice').addEventListener('click', checkChoiceAnswer);
 document.getElementById('exerciseInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    const q = session.questions[session.index];
-    handleInputAnswer(q);
-  }
+  if (e.key === 'Enter') handleInputAnswer();
 });
 
 // ══ Экран выбора класса ══
@@ -686,6 +708,32 @@ function buildGradeGroupScreen() {
 }
 
 // ══ Экран выбора темы ══
+let topicProgress = {}; // topic_id → { best_score, best_pct, attempts }
+
+async function loadTopicProgress() {
+  try {
+    const { progress } = await window.api('/api/sessions/progress');
+    topicProgress = {};
+    progress.forEach(p => { topicProgress[p.topic_id] = p; });
+  } catch (e) { /* офлайн/гость — просто без бейджей */ }
+}
+
+function applyTopicProgress() {
+  document.querySelectorAll('#topicsList .topic-item').forEach(item => {
+    const badge = item.querySelector('.topic-badge');
+    if (!badge) return;
+    const p = topicProgress[item.dataset.topicId];
+    if (!p) { badge.innerHTML = ''; item.classList.remove('topic-passed'); return; }
+    const best  = Number(p.best_score);
+    const stars = starsFor(best);
+    badge.innerHTML = `<span class="topic-score">${best}/${QUESTIONS_PER_SESSION}</span>`
+                    + `<span class="topic-badge-stars">${'★'.repeat(stars)}</span>`;
+    item.classList.toggle('topic-passed', stars >= PASS_STARS);
+  });
+}
+window.loadTopicProgress  = loadTopicProgress;
+window.applyTopicProgress = applyTopicProgress;
+
 function buildTopicsScreen() {
   const topics = mathTopics[currentGroupId] || [];
   const group  = gradeGroups.find(g => g.id === currentGroupId);
@@ -693,13 +741,23 @@ function buildTopicsScreen() {
 
   const list = document.getElementById('topicsList');
   list.innerHTML = '';
+  let lastGroup = null;
   topics.forEach(t => {
+    // Подзаголовок-секция при смене класса
+    if (t.info && t.info !== lastGroup) {
+      lastGroup = t.info;
+      const head = document.createElement('div');
+      head.className = 'topics-group-label';
+      head.textContent = t.info;
+      list.appendChild(head);
+    }
     const item = document.createElement('div');
     item.className = 'topic-item';
+    item.dataset.topicId = t.id;
     item.innerHTML = `
       <div class="topic-icon-wrap">${t.icon}</div>
       <span class="topic-name">${t.name}</span>
-      <span class="topic-count">${t.info || ''}</span>
+      <span class="topic-badge" data-no-translate></span>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
     `;
     item.addEventListener('click', () => { currentTopic = t; showTheory(t); });
@@ -707,6 +765,8 @@ function buildTopicsScreen() {
   });
   window.i18n?.el(list);
   window.i18n?.el(document.getElementById('topicsTitle'));
+  applyTopicProgress();
+  loadTopicProgress().then(applyTopicProgress);
 }
 
 // ══ Теория ══
@@ -826,7 +886,7 @@ function renderTheorySlide(index) {
   );
 
   const btn = document.getElementById('btnStartFromTheory');
-  btn.textContent = index === SLIDE_IDS.length - 1 ? 'Понятно, начинаем! →' : 'Далее →';
+  btn.textContent = index === SLIDE_IDS.length - 1 ? 'Понятно, начинаем!' : 'Далее';
 }
 
 document.getElementById('btnBackTheory').addEventListener('click', () => {
@@ -874,17 +934,21 @@ function renderQuestion() {
   document.getElementById('exerciseHint').innerHTML           = '';
   document.getElementById('btnNextQuestion').style.display    = 'none';
   session.answered = false;
+  session.attempts = 0;
+  session.selected = null;
 
-  const opts      = document.getElementById('exerciseOptions');
-  const inputWrap = document.getElementById('exerciseInputWrap');
-  const input     = document.getElementById('exerciseInput');
+  const opts        = document.getElementById('exerciseOptions');
+  const inputWrap   = document.getElementById('exerciseInputWrap');
+  const input       = document.getElementById('exerciseInput');
+  const checkChoice = document.getElementById('btnCheckChoice');
 
   if (useInput) {
-    opts.style.display      = 'none';
-    inputWrap.style.display = 'flex';
-    input.value             = '';
-    input.disabled          = false;
-    input.className         = 'exercise-input';
+    opts.style.display        = 'none';
+    checkChoice.style.display = 'none';
+    inputWrap.style.display   = 'flex';
+    input.value               = '';
+    input.disabled            = false;
+    input.className           = 'exercise-input';
     document.getElementById('btnCheckAnswer').disabled = false;
     setTimeout(() => input.focus(), 50);
   } else {
@@ -895,18 +959,59 @@ function renderQuestion() {
       const btn = document.createElement('button');
       btn.className   = 'option-btn';
       btn.textContent = ans;
-      btn.addEventListener('click', () => handleAnswer(ans, btn, q));
+      btn.addEventListener('click', () => selectOption(btn, ans));
       opts.appendChild(btn);
     });
+    checkChoice.style.display = 'block';
+    checkChoice.disabled      = true;
   }
   window.i18n?.el(document.getElementById('exerciseQuestionMode'));
 }
 
-function handleAnswer(ans, btn, q) {
+// Выбор варианта (ещё не проверка)
+function selectOption(btn, ans) {
   if (session.answered) return;
-  session.answered = true;
-  const correct = String(ans).trim() === String(q.correct).trim();
+  session.selected = ans;
+  document.querySelectorAll('.option-btn').forEach(b => b.classList.toggle('selected', b === btn));
+  document.getElementById('btnCheckChoice').disabled = false;
+}
+
+// Проверка выбранного варианта (одна попытка)
+function checkChoiceAnswer() {
+  if (session.answered || session.selected == null) return;
+  const q   = session.questions[session.index];
+  const btn = [...document.querySelectorAll('.option-btn')].find(b => b.textContent === String(session.selected));
+  finalizeAnswer(String(session.selected).trim() === String(q.correct).trim(), btn, q);
+}
+
+// Проверка введённого ответа (две попытки)
+function handleInputAnswer() {
+  if (session.answered) return;
+  const input = document.getElementById('exerciseInput');
+  const ans   = input.value.trim();
+  if (!ans) return;
+  const q       = session.questions[session.index];
+  const correct = ans === String(q.correct).trim();
   const hint    = document.getElementById('exerciseHint');
+
+  if (correct) { finalizeAnswer(true, null, q); return; }
+
+  session.attempts++;
+  if (session.attempts < 2) {
+    hint.innerHTML = '<span style="color:#fbbf24">Попробуй ещё раз 🤔</span>';
+    input.classList.remove('input-correct');
+    input.classList.add('input-retry');
+    input.select();
+    window.i18n?.el(hint);
+    return;
+  }
+  finalizeAnswer(false, null, q);
+}
+
+// Финализация ответа: подсветка, счёт, кнопка «Далее»
+function finalizeAnswer(correct, btn, q) {
+  session.answered = true;
+  const hint = document.getElementById('exerciseHint');
 
   if (correct) {
     session.score++;
@@ -916,28 +1021,23 @@ function handleAnswer(ans, btn, q) {
     if (btn) btn.classList.add('wrong');
     hint.innerHTML = `<span style="color:#f87171">✗ Правильный ответ: <b>${q.correct}</b></span>`;
     document.querySelectorAll('.option-btn').forEach(b => {
-      if (b.textContent === q.correct) b.classList.add('correct');
+      if (b.textContent === String(q.correct)) b.classList.add('correct');
     });
   }
 
   document.getElementById('exerciseScore').textContent     = `★ ${session.score}`;
   document.getElementById('btnNextQuestion').style.display = 'block';
   document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+  document.getElementById('btnCheckChoice').style.display  = 'none';
 
   // Блокируем инпут после ответа
   const input = document.getElementById('exerciseInput');
   input.disabled = true;
+  input.classList.remove('input-retry');
   input.classList.add(correct ? 'input-correct' : 'input-wrong');
   document.getElementById('btnCheckAnswer').disabled = true;
 
   window.i18n?.el(hint);
-}
-
-function handleInputAnswer(q) {
-  const input = document.getElementById('exerciseInput');
-  const ans   = input.value.trim();
-  if (!ans) return;
-  handleAnswer(ans, null, q);
 }
 
 function nextQuestion() {
@@ -953,6 +1053,7 @@ function showResult() {
   const msg   = pct >= 80 ? 'Отличный результат!' : pct >= 60 ? 'Хорошая работа!' : pct >= 40 ? 'Нужно потренироваться' : 'Не сдавайся!';
   document.getElementById('resultEmoji').textContent    = emoji;
   document.getElementById('resultTitle').textContent    = msg;
+  document.getElementById('resultStars').innerHTML      = starsHtml(starsFor(session.score));
   document.getElementById('resultScoreBig').textContent = `${session.score} / ${QUESTIONS_PER_SESSION}`;
   document.getElementById('resultPct').textContent      = `${pct}%`;
   document.getElementById('exerciseResultMode').style.display = 'flex';

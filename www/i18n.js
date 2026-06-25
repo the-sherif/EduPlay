@@ -113,9 +113,17 @@ const QUICK = {
   'Интеграл': 'Integral',
   'Комбинаторика': 'Combinatorics',
   // Exercise
-  'Далее →': 'Next →',
+  'Далее': 'Next',
+  'Проверить': 'Check',
+  'Попробуй ещё раз 🤔': 'Try again 🤔',
+  'Понятно, начинаем!': "Got it, let's go!",
   'Ещё раз': 'Try again',
   'Другая тема': 'Other topic',
+  'Подтвердить': 'Confirm',
+  'Применить': 'Apply',
+  'Выбрать этот стиль': 'Choose this style',
+  'Выбери свой стиль': 'Choose your style',
+  'Выбери тему': 'Choose a theme',
   // Results
   'Отличный результат!': 'Excellent result!',
   'Хорошая работа!': 'Good job!',

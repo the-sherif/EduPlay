@@ -35,6 +35,20 @@ router.post('/', requireAuth, async (req, res) => {
   }
 });
 
+// ── Прогресс по темам (лучший результат на тему) ──────────────
+router.get('/progress', requireAuth, async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT topic_id, MAX(score) AS best_score, MAX(pct) AS best_pct, COUNT(*) AS attempts
+       FROM sessions WHERE user_id=$1 GROUP BY topic_id`,
+      [req.user.id]
+    );
+    res.json({ progress: rows });
+  } catch (e) {
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
 // ── История сессий пользователя ───────────────────────────────
 router.get('/', requireAuth, async (req, res) => {
   try {

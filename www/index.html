@@ -81,7 +81,7 @@
         <input type="text" inputmode="numeric" maxlength="6" id="verifyCode"
           class="verify-code-input" placeholder="000000" autocomplete="one-time-code"/>
       </div>
-      <button class="btn-primary" id="btnVerify">Подтвердить →</button>
+      <button class="btn-primary" id="btnVerify">Подтвердить</button>
       <p class="auth-error" id="verifyError"></p>
       <button class="link-btn" id="btnResendCode">Отправить код повторно</button>
     </div>
@@ -90,17 +90,20 @@
   <!-- ── Онбординг: выбор стиля ── -->
   <div id="screenOnboarding" class="screen onboarding-screen">
     <div class="onboarding-wrap">
+      <button class="btn-icon onboarding-back" id="btnBackOnboarding" style="display:none">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
       <div class="onboarding-header">
-        <div class="onboarding-tag">Последний шаг ✦</div>
-        <h2 class="onboarding-title">Выбери свой стиль</h2>
-        <p class="onboarding-sub">Можно изменить позже в настройках</p>
+        <div class="onboarding-tag" id="onboardingTag">Последний шаг ✦</div>
+        <h2 class="onboarding-title" id="onboardingTitle">Выбери свой стиль</h2>
+        <p class="onboarding-sub" id="onboardingSub">Можно изменить позже в настройках</p>
       </div>
       <div class="carousel-viewport">
         <div class="carousel-track" id="carouselTrack"></div>
       </div>
       <div class="carousel-dots" id="carouselDots"></div>
       <div class="onboarding-actions">
-        <button class="btn-primary onboarding-select-btn" id="btnSelectStyle">Выбрать этот стиль →</button>
+        <button class="btn-primary onboarding-select-btn" id="btnSelectStyle">Выбрать этот стиль</button>
       </div>
     </div>
   </div>
@@ -290,7 +293,7 @@
         </div>
       </div>
 
-      <button class="btn-primary" id="btnStartFromTheory">Далее →</button>
+      <button class="btn-primary" id="btnStartFromTheory">Далее</button>
     </div>
   </div>
 
@@ -314,17 +317,19 @@
         </div>
         <div class="exercise-question" id="exerciseQuestion"></div>
         <div class="exercise-options" id="exerciseOptions"></div>
+        <button class="btn-primary exercise-check-btn" id="btnCheckChoice" style="display:none" disabled>Проверить</button>
         <div class="exercise-input-wrap" id="exerciseInputWrap" style="display:none">
           <input type="text" inputmode="numeric" id="exerciseInput" class="exercise-input" placeholder="Введи ответ..." autocomplete="off" />
           <button class="btn-primary exercise-check-btn" id="btnCheckAnswer">Проверить</button>
         </div>
         <div class="exercise-hint" id="exerciseHint"></div>
-        <button class="btn-primary exercise-next-btn" id="btnNextQuestion">Далее →</button>
+        <button class="btn-primary exercise-next-btn" id="btnNextQuestion">Далее</button>
       </div>
 
       <div class="exercise-result-mode" id="exerciseResultMode">
         <div class="result-emoji-big" id="resultEmoji"></div>
         <div class="result-title" id="resultTitle"></div>
+        <div class="result-stars" id="resultStars" data-no-translate></div>
         <div class="result-score-display" id="resultScoreBig"></div>
         <div class="result-pct" id="resultPct"></div>
         <button class="btn-primary" id="btnRetry">Ещё раз</button>
@@ -400,19 +405,6 @@
   </div>
 
   <!-- ── Выбор темы (модалка) ── -->
-  <div id="themePickerModal" class="modal-overlay">
-    <div class="modal-sheet theme-picker-sheet">
-      <div class="modal-handle"></div>
-      <div class="modal-title">Выбор темы</div>
-      <div class="theme-tabs" id="themeTabs">
-        <button class="theme-tab active" data-cat="standard">Стандартные</button>
-        <button class="theme-tab" data-cat="animal">Животные</button>
-        <button class="theme-tab" data-cat="cartoon">Мультяшные</button>
-      </div>
-      <div class="theme-grid" id="themeGrid"></div>
-    </div>
-  </div>
-
   <script src="i18n.js"></script>
   <script src="app.js"></script>
   <script src="db.js"></script>
